@@ -23,6 +23,10 @@ import com.pavelfatin.toyide.languages.toy.ToyTokens._
 import com.pavelfatin.toyide.{FileType, Language}
 
 object ToyLanguage extends Language {
+  def name = "Toy"
+
+  def description = "C-like imperative language"
+
   def lexer = ToyLexer
 
   def parser = ProgramParser

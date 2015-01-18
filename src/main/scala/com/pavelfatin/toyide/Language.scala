@@ -24,6 +24,10 @@ import lexer.{TokenKind, Lexer}
 import parser.Parser
 
 trait Language {
+  def name: String
+
+  def description: String
+
   def lexer: Lexer
 
   def parser: Parser

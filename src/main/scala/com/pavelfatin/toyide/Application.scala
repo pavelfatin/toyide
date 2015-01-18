@@ -19,26 +19,41 @@ package com.pavelfatin.toyide
 
 import java.awt.Dimension
 import javax.swing.UIManager
-import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel
-import com.pavelfatin.toyide.languages.toy.{ToyLanguage, ToyExamples}
+
 import com.pavelfatin.toyide.ide.MainFrame
-import swing.SimpleSwingApplication
+import com.pavelfatin.toyide.languages.lisp.LispLanguage
+import com.pavelfatin.toyide.languages.toy.ToyLanguage
+import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel
 
-object Application extends SimpleSwingApplication {
-  private val InitialText = ToyExamples.Euler1.filterNot(_ == '\r').trim
+import scala.swing._
 
-  private lazy val frame = new MainFrame(ToyLanguage, InitialText)
+object Application extends SwingApplication {
+  private val LookAndFeel = new NimbusLookAndFeel()
 
-  def top = frame
+  private val Languages = Seq(ToyLanguage, LispLanguage)
 
   override def startup(args: Array[String]) {
-    UIManager.setLookAndFeel(new NimbusLookAndFeel())
+    UIManager.setLookAndFeel(LookAndFeel)
 
-    def frame = top
+    selectLanguage().foreach(openMainFrame(_))
+  }
 
+  private def selectLanguage(): Option[Language] = {
+    val dialog = new LanguageDialog(Languages)
+    open(dialog)
+    dialog.selection
+  }
+
+  private def openMainFrame(language: Language) {
+    val code = language.examples.headOption.map(_.code).getOrElse("")
+    val frame = new MainFrame(language, code)
     frame.preferredSize = new Dimension(874, 696)
-    frame.pack()
-    frame.centerOnScreen()
-    frame.open()
+    open(frame)
+  }
+
+  private def open(window: Window) {
+    window.pack()
+    window.centerOnScreen()
+    window.open()
   }
 }
