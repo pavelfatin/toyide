@@ -33,6 +33,7 @@ class MainFrame(language: Language, text: String) extends Frame {
   }
 
   override def closeOperation() {
+    launcher.stop()
     dispose()
   }
 
