@@ -18,5 +18,5 @@
 package com.pavelfatin.toyide.editor
 
 trait Renderer {
-  def render(data: Data, terminal: Terminal): Seq[Text]
+  def render(data: Data, terminal: Terminal, begin: Int, end: Int): Seq[Text]
 }

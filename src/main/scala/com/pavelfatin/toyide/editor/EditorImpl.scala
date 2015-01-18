@@ -55,6 +55,8 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
   private val controller: Controller =
     new ControllerImpl(document, data, terminal, grid, new FormatterImpl(format), TabSize, adviser, history)
 
+  private val scroll = new JScrollPane(Pane)
+
   val component = {
     val stripe = new Stripe(document, data, grid)
     stripe.onChange { y =>
@@ -65,7 +67,6 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
       Pane.requestFocusInWindow()
     }
     val panel = new JPanel(new BorderLayout())
-    val scroll = new JScrollPane(Pane)
     val map = scroll.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
     map.allKeys().foreach(map.put(_, "none"))
     map.put(KeyStroke.getKeyStroke("ctrl pressed UP"), "unitScrollUp")
@@ -164,7 +165,7 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
     Pane.repaint()
     Pane.revalidate()
   }
-  
+
   private def errorAt(offset: Int): Option[Error] = {
     val errors = data.errors.filter(_.span.withEndShift(1).includes(offset))
     errors.sortBy(!_.fatal).headOption
@@ -221,7 +222,7 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
         callback(result)
       }
       dialog.pack()
-      dialog.setLocationRelativeTo(Pane)
+      dialog.setLocationRelativeTo(scroll)
       dialog.setVisible(true)
     }
   }
@@ -285,7 +286,11 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
       terminal.selection.foreach(fillInterval(g2d, _, SelectionColor))
       terminal.highlights.foreach(fillInterval(g2d, _, HighlightColor))
 
-      renderer.render(data, terminal).foreach { text =>
+      val r = scroll.getViewport.getViewRect
+      val begin = r.y / grid.cellSize.height
+      val end = (r.y + r.height) / grid.cellSize.height
+
+      renderer.render(data, terminal, begin, end).foreach { text =>
         val p = grid.toPoint(text.location)
 
         text.attributes.background.foreach { color =>

@@ -25,7 +25,7 @@ import com.pavelfatin.toyide.Interval
 import com.pavelfatin.toyide.document.Location
 
 private class RendererImpl(coloring: Coloring, matcher: BraceMatcher) extends Renderer {
-  def render(data: Data, terminal: Terminal): Seq[Text] = {
+  def render(data: Data, terminal: Terminal, begin: Int, end: Int): Seq[Text] = {
     var line = 0
     var indent = 0
 
@@ -38,6 +38,8 @@ private class RendererImpl(coloring: Coloring, matcher: BraceMatcher) extends Re
       if(s.contains("\n")) {
         line += s.count(_ == '\n')
         indent = s.view.reverse.takeWhile(_ != '\n').size
+        Seq.empty
+      } else if (line < begin || line >= end) {
         Seq.empty
       } else {
         var attributes = coloring.attributesFor(token.kind)
