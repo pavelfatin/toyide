@@ -29,25 +29,23 @@ package object controller {
   private[controller] implicit def toTerminalExt(terminal: Terminal) = new TerminalExt(terminal)
 
   private[controller] class DataExt(data: Data) {
-    import com.pavelfatin.toyide.editor.controller._
-
     def leafAt(offset: Int) = data.structure.flatMap { root =>
-      root.offsetOf(offset).flatMap(root.leafAt(_))
+      root.offsetOf(offset).flatMap(root.leafAt)
     }
 
     def referenceAt(offset: Int) = data.structure.flatMap { root =>
-      root.offsetOf(offset).flatMap(root.referenceAt(_))
+      root.offsetOf(offset).flatMap(root.referenceAt)
     }
 
-    def indentifierAt(offset: Int) = data.structure.flatMap { root =>
-      root.offsetOf(offset).flatMap(root.identifierAt(_))
+    def identifierAt(offset: Int) = data.structure.flatMap { root =>
+      root.offsetOf(offset).flatMap(root.identifierAt)
     }
 
     def connectedLeafsFor(offset: Int): Seq[Node] = {
-      val targetNode = indentifierAt(offset).orElse {
-        referenceAt(offset) collect {
-          case ReferenceNodeTarget(node: IdentifiedNode) => node
-        }
+      val targetNode = referenceAt(offset) collect {
+        case ReferenceNodeTarget(node: IdentifiedNode) => node
+      } orElse {
+        identifierAt(offset)
       }
       val refs = data.structure.toList.flatMap { root =>
         root.elements.collect {
