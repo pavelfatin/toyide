@@ -1,0 +1,80 @@
+header {
+  border-bottom: 1px solid #aaaaaa;
+}
+
+#caption {
+  width: 600px;
+  height: 74px;
+  margin: 15px 0 10px 110px;
+}
+
+#logo {
+  float: left;
+}
+
+#location {
+  float: right;
+  font-size: 62px;
+  font-family: Serif;
+  color: #cccccc;
+}
+
+main {
+  position: absolute;
+  width: 580px;
+  left: 50px;
+  margin-top: 20px;
+  padding-left: 70px;
+  padding-right: 70px;
+  min-height: 500px;
+}
+
+#slide {
+  font-family: Arial, Verdana, Tahoma;
+  font-size: 14px;
+  line-height: 1.6em;
+}
+
+#slide img {
+  border: 1px solid #dddddd;
+  margin-top: 0.5em;
+}
+
+h1 {
+  font-family: Georgia, Sans-Serif, Verdana;
+  font-weight: normal;
+}
+
+.button {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    color: #ccc;
+    border: 1px solid #eee;
+}
+
+.button:hover {
+  color: #aaaaaa;
+  background-color: #f4f4f4;
+  border: 1px solid #aaaaaa;
+}
+
+.button .arrow {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  font-family: "Courier";
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+}
+
+#backward {
+  left: 0;
+}
+
+#forward {
+  right: 0;
+}

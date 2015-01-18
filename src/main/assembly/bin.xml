@@ -21,6 +21,10 @@
             </includes>
         </fileSet>
         <fileSet>
+            <directory>doc</directory>
+            <outputDirectory>doc</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>license</directory>
             <outputDirectory>license</outputDirectory>
             <includes>
