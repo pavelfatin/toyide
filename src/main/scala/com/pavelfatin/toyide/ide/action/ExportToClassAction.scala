@@ -20,6 +20,7 @@ package com.pavelfatin.toyide.ide.action
 import com.pavelfatin.toyide.compiler.Assembler
 import com.pavelfatin.toyide.editor.Data
 import swing.{Component, FileChooser, Action}
+import javax.swing.JOptionPane
 import javax.swing.filechooser.FileNameExtensionFilter
 import com.pavelfatin.toyide.node.Node
 import java.io.{File, FileOutputStream}
@@ -35,7 +36,12 @@ class ExportToClassAction(title0: String, mnemonic0: Char, data: Data, parent: C
           chooser.title = "Export to Class"
           chooser.fileFilter = new FileNameExtensionFilter("JVM class", "class")
           chooser.showSaveDialog(parent) match {
-            case FileChooser.Result.Approve => save(root, chooser.selectedFile)
+            case FileChooser.Result.Approve => try {
+              save(root, chooser.selectedFile)
+            } catch {
+              case e: Exception => JOptionPane.showMessageDialog(parent.peer,
+                e.getMessage, "Export error", JOptionPane.ERROR_MESSAGE)
+            }
             case _ =>
           }
       }
