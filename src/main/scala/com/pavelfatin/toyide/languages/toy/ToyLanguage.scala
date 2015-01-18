@@ -33,6 +33,8 @@ object ToyLanguage extends Language {
 
   def format = ToyFormat
 
+  def comment = "//"
+
   def inspections = Seq(ReturnOutsideFunction, DuplicateIdentifier, UnresolvedReference,
     VoidValue, Applicability, TypeMismatch, OperatorApplication, IntegerRange, PrefixApplication,
     MissingReturn, UnreachableStatement, UnusedDeclaration, PredefinedIdentifier, Optimization, DivisionByZero)

@@ -139,8 +139,8 @@ class ControllerImplTest {
   protected def assertEffectIs(before: String, after: String)(f: ControllerImpl => Unit) {
     doAssertEffectIs(before, after) { (document, terminal) =>
       val GridMock = new Grid(Size(8, 8), new Insets(0, 0, 0, 0))
-      val controller = new ControllerImpl(document, new DataMock(), terminal, GridMock,
-        new FormatterImpl(new MockFormat()), 2, new AdviserMock(), new HistoryImpl())
+      val controller = new ControllerImpl(document, new DataMock(), terminal, GridMock, new AdviserMock(),
+        new FormatterImpl(new MockFormat()), 2, "//", new HistoryImpl())
       f(controller)
     }
   }

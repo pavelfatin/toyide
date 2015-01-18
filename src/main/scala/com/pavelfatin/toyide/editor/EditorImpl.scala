@@ -28,8 +28,8 @@ import com.pavelfatin.toyide.inspection.Decoration
 import java.awt.event._
 import com.pavelfatin.toyide.formatter.{FormatterImpl, Format}
 
-private class EditorImpl(val document: Document, val data: Data, coloring: Coloring, matcher: BraceMatcher,
-                 format: Format, adviser: Adviser, listRenderer: ListCellRenderer, history: History) extends Editor {
+private class EditorImpl(val document: Document, val data: Data, coloring: Coloring, matcher: BraceMatcher, format: Format,
+                         adviser: Adviser, listRenderer: ListCellRenderer, comment: String, history: History) extends Editor {
   private val CurrentLineColor = new Color(255, 255, 215)
 
   private val FillColor = new Color(246, 235, 188)
@@ -53,7 +53,7 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
   private val renderer = new RendererImpl(coloring, matcher)
 
   private val controller: Controller =
-    new ControllerImpl(document, data, terminal, grid, new FormatterImpl(format), TabSize, adviser, history)
+    new ControllerImpl(document, data, terminal, grid, adviser, new FormatterImpl(format), TabSize, comment, history)
 
   private val scroll = new JScrollPane(Pane)
 

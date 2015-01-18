@@ -22,7 +22,7 @@ import com.pavelfatin.toyide.formatter.Formatter
 import com.pavelfatin.toyide.editor._
 
 private class Actions(document: Document, terminal: Terminal, data: Data, adviser: Adviser,
-                      formatter: Formatter, tabSize: Int, history: History) extends EditorActions {
+                      formatter: Formatter, tabSize: Int, comment: String, history: History) extends EditorActions {
   private def historical(action: AnAction) = new HistoricalAction(action, document, terminal, history)
     
   val complete = new Complete(document, terminal, data, adviser, history)
@@ -59,7 +59,7 @@ private class Actions(document: Document, terminal: Terminal, data: Data, advise
 
   val showUsages = historical(new ShowUsages(terminal, data))
 
-  val toggleLineComment = historical(new ToggleLineComment(document, terminal))
+  val toggleLineComment = historical(new ToggleLineComment(document, terminal, comment))
 
   val undo = new Undo(document, terminal, history)
 

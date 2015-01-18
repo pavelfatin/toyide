@@ -26,8 +26,8 @@ import java.awt.AWTKeyStroke
 import com.pavelfatin.toyide.node.{Node, IdentifiedNode}
 import com.pavelfatin.toyide.editor._
 
-class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: Grid,
-                     formatter: Formatter, tabSize: Int, adviser: Adviser, history: History) extends Controller {
+class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: Grid, adviser: Adviser,
+                     formatter: Formatter, tabSize: Int, comment: String, history: History) extends Controller {
   //TODO extract to some extension (maybe using brace matcher)
   private val pairs = List(
     ('(', ')'),
@@ -42,7 +42,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   private var origin = 0
 
   def actions: EditorActions =
-    new Actions(document, terminal, data, adviser, formatter, tabSize, history)
+    new Actions(document, terminal, data, adviser, formatter, tabSize, comment, history)
 
   def processKeyPressed(e: KeyEvent) {
     if(isModifierKey(e.getKeyCode)) return

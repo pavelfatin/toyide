@@ -34,6 +34,7 @@ object EditorFactory {
 
     val matcher = new BraceMatcherImpl(language.complements)
 
-    new EditorImpl(document, data, language.coloring, matcher, language.format, language.adviser, listRenderer, history)
+    new EditorImpl(document, data, language.coloring, matcher, language.format,
+      language.adviser, listRenderer, language.comment, history)
   }
 }

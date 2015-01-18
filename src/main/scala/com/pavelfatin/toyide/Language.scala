@@ -34,6 +34,8 @@ trait Language {
 
   def format: Format
 
+  def comment: String
+
   def inspections: Seq[Inspection]
 
   def adviser: Adviser
