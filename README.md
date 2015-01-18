@@ -23,7 +23,7 @@ and other similar fun, but tricky things.
 
 Source code is 100% Scala. There are ~800 unit tests (run in < 3 seconds).
 
-Download binaries: [toyide-1.1-bin.zip](https://github.com/downloads/pavelfatin/toyide/toyide-1.1-bin.zip) (10MB)
+Download binaries: [toyide-1.1-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.1.0/toyide-1.1-bin.zip) (10MB)
 
 # Features
 
@@ -37,7 +37,7 @@ Download binaries: [toyide-1.1-bin.zip](https://github.com/downloads/pavelfatin/
 * [Autocomplete](#autocomplete)
 * [Code formatting](#code-formatting)
 * [Rename refactoring](#rename-refactoring)
-* [Control / data flow analysis](#control-data-flow-analysis)
+* [Control / data flow analysis](#control--data-flow-analysis)
 * [Static code optimization](#static-code-optimization)
 * [Structure pane](#structure-pane)
 * [Interpreter](#interpreter)
@@ -55,7 +55,7 @@ Imperative, statically-typed, C-like language:
 * expression optimization,
 * JVM bytecode emitter.
 
-**Project Euler code examples:**
+Project Euler code examples:
 
 ![ToyIDE: Imperative Language](doc/images/toyide-imperative-language.png?raw=true)
 
@@ -71,7 +71,7 @@ Functional, dynamically-typed, Clojure-like language:
 * error reporting & stack traces,
 * comprehensive standard library,
 
-**Minimalistic web server code as an example:**
+Minimalistic web server code as an example:
 
 ![ToyIDE: Functional Language](doc/images/toyide-functional-language.png?raw=true)
 
