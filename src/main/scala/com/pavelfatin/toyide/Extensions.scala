@@ -28,6 +28,10 @@ object Extensions {
 
     def findBy[T: ClassManifest]: Option[T] =
       value.find(classManifest[T].erasure.isInstance(_)).map(_.asInstanceOf[T])
+
+    def collectAll[B](pf: PartialFunction[A, B])(implicit cbf: CanBuildTo[B, CC]): Option[CC[B]] = {
+      if (value.forall(pf.isDefinedAt)) Some(value.collect(pf)(collection.breakOut)) else None
+    }
   }
 
   implicit def toRichTraversable[CC[X] <: Traversable[X], A](t: CC[A]): RichTraversable[CC, A] =

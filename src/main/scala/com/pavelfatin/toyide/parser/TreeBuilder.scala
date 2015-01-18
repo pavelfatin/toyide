@@ -39,7 +39,7 @@ class TreeBuilder(input: Iterator[Token]) {
   }
 
   def matches(kinds: TokenKind*) = {
-    head.filter(token => kinds.contains(token.kind)).isDefined
+    head.exists(token => kinds.contains(token.kind))
   }
 
   def consume(kinds: TokenKind*) {
