@@ -27,7 +27,7 @@ private class Complete(document: Document, terminal: Terminal, data: Data,
   def apply() {
     terminal.selection = None
     terminal.highlights = Seq.empty
-    val label = "ANCHOR"
+    val label = Adviser.Anchor
     document.insert(terminal.offset, label)
     data.compute()
     val structure = data.structure

@@ -17,6 +17,7 @@
 
 package com.pavelfatin.toyide.languages.toy
 
+import com.pavelfatin.toyide.editor.Adviser
 import parser.ProgramParser
 import org.junit.Test
 import org.junit.Assert._
@@ -161,7 +162,7 @@ class ToyAdviserTest {
   }
 
   protected def assertVariantsAre(code: String)(expected: String*) {
-    val label = "ANCHOR"
+    val label = Adviser.Anchor
     val s = code.replaceFirst("\\|", label)
     val root = ProgramParser.parse(ToyLexer.analyze(s))
     val anchor = root.elements.find(it => it.isLeaf && it.span.text.contains(label)).lastOption

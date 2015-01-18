@@ -23,6 +23,10 @@ trait Adviser {
   def variants(root: Node, anchor: Node): Seq[Variant]
 }
 
+object Adviser {
+  val Anchor = "ANCHOR"
+}
+
 case class Variant(title: String, content: String, shift: Int) {
   override def toString = title
 }
