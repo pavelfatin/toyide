@@ -17,19 +17,15 @@
 
 package com.pavelfatin.toyide.languages.toy
 
-import com.pavelfatin.toyide.lexer.{Token, Lexer}
+import com.pavelfatin.toyide.lexer.{AbstractTokenIterator, Token, Lexer}
 import com.pavelfatin.toyide.lexer.Tokens._
 import ToyTokens._
-import com.pavelfatin.toyide._
 
 object ToyLexer extends Lexer {
-  def analyze(input: CharSequence): Iterator[Token] = new TokensStream(input)
+  def analyze(input: CharSequence): Iterator[Token] = new TokenIterator(input)
 }
 
-private class TokensStream(input: CharSequence) extends Iterator[Token] {
-  private var index = 0
-  private var marker = -1
-
+private class TokenIterator(input: CharSequence) extends AbstractTokenIterator(input) {
   def next(): Token = {
     if (char == '=') {
       if(isAhead('=')) {
@@ -116,47 +112,6 @@ private class TokensStream(input: CharSequence) extends Iterator[Token] {
 
     Token(UNKNOWN, captureChar, Some("Unknown token"))
   }
-
-  def advance() {
-    index += 1
-  }
-
-  def mark() {
-    marker = index
-  }
-
-  def marked = Span(input, marker, index)
-
-  def captureChar = captureChars(1)
-
-  def captureChars(count: Int) = {
-    mark()
-    Range(0, count).foreach(n => advance())
-    marked
-  }
-
-  def skip(predicate: Char => Boolean) {
-    while (hasNext && predicate(char)) advance()
-  }
-
-  def capture(predicate: Char => Boolean): Span = {
-    mark()
-    skip(predicate)
-    marked
-  }
-
-  def char= input.charAt(index)
-
-  def ahead(offset: Int) = {
-    val i = index + offset
-    if(i < input.length) Some(input.charAt(i)) else None
-  }
-
-  def isAhead(char: Char): Boolean = isAhead(_ == char)
-
-  def isAhead(predicate: Char => Boolean): Boolean = ahead(1).filter(predicate).isDefined
-
-  def hasNext = index < input.length
 }
 
 
