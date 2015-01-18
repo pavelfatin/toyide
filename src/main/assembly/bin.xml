@@ -34,7 +34,7 @@
     </fileSets>
     <files>
         <file>
-          <source>README</source>
+          <source>README.md</source>
           <outputDirectory>/</outputDirectory>
         </file>
     </files>
