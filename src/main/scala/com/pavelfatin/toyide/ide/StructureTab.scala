@@ -52,6 +52,7 @@ private class StructureTab(data: Data, terminal: Terminal) extends BorderPanel {
 
     override def focusLost(e: FocusEvent) {
       terminal.highlights = Seq.empty
+      tree.clearSelection()
     }
   })
 
