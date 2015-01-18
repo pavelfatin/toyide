@@ -110,7 +110,13 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
   def terminal: Terminal = MyTerminal
 
   terminal.onChange { event =>
-    scrollToCaretVisible()
+    event match {
+      case CaretMovement(_, offset) =>
+        scrollToOffsetVisible(offset)
+      case HighlightsChange(_, Seq(interval, etc @ _*)) =>
+        scrollToOffsetVisible(interval.begin)
+      case _ =>
+    }
     Pane.repaint()
   }
 
@@ -151,11 +157,20 @@ private class EditorImpl(val document: Document, val data: Data, coloring: Color
     update()
   }
 
-  private def scrollToCaretVisible() {
+  private def scrollToOffsetVisible(offset: Int) {
     val h = grid.cellSize.height
     val w = grid.cellSize.width
-    val p = toPoint(terminal.offset)
-    Pane.scrollRectToVisible(new Rectangle(p.x - w * 2, p.y - Accent - h, w * 4, Decent + h * 3))
+    val p = toPoint(offset)
+
+    val spot = {
+      val panelBounds = Pane.getBounds(null)
+      panelBounds.setLocation(0, 0)
+      panelBounds.intersection(new Rectangle(p.x - w * 2, p.y - Accent - h, w * 4, Decent + h * 3))
+    }
+
+    if (!scroll.getViewport.getViewRect.contains(spot)) {
+      Pane.scrollRectToVisible(spot)
+    }
   }
 
   private def update() {
