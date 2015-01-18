@@ -17,6 +17,8 @@
 
 package com.pavelfatin.toyide.languages.toy
 
+import com.pavelfatin.toyide.Example
+
 object ToyExamples {
  val Euler1 = """
 // Project Euler - Problem 1
@@ -170,4 +172,13 @@ def foo(): void = {
 
 foo();
 """
+
+  val Values = Seq(
+    Example("Project Euler 1", '1', Euler1),
+    Example("Project Euler 2", '2', Euler2),
+    Example("Project Euler 6", '6', Euler6),
+    Example("Fibonacci Numbers", 'F', FibonacciNumbers),
+    Example("Prime Numbers", 'P', PrimeNumbers),
+    Example("Exception", 'E', Exception),
+    Example("Stack Overflow", 'S', StackOverflow))
 }

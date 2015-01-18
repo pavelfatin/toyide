@@ -17,28 +17,4 @@
 
 package com.pavelfatin.toyide
 
-import java.awt.Dimension
-import javax.swing.UIManager
-import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel
-import com.pavelfatin.toyide.languages.toy.{ToyLanguage, ToyExamples}
-import com.pavelfatin.toyide.ide.MainFrame
-import swing.SimpleSwingApplication
-
-object Application extends SimpleSwingApplication {
-  private val InitialText = ToyExamples.Euler1.filterNot(_ == '\r').trim
-
-  private lazy val frame = new MainFrame(ToyLanguage, InitialText)
-
-  def top = frame
-
-  override def startup(args: Array[String]) {
-    UIManager.setLookAndFeel(new NimbusLookAndFeel())
-
-    def frame = top
-
-    frame.preferredSize = new Dimension(874, 696)
-    frame.pack()
-    frame.centerOnScreen()
-    frame.open()
-  }
-}
+case class Example(name: String, mnemonic: Char, code: String)

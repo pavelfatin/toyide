@@ -41,4 +41,6 @@ trait Language {
   def adviser: Adviser
 
   def fileType: FileType
+
+  def examples: Seq[Example]
 }

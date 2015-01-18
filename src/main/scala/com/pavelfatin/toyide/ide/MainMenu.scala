@@ -21,11 +21,11 @@ import action._
 import swing._
 import event.Key
 import javax.swing.KeyStroke
-import com.pavelfatin.toyide.languages.toy.ToyExamples
+import com.pavelfatin.toyide.Example
 import com.pavelfatin.toyide.editor._
 
 private class MainMenu(tab: EditorTab, frame: Frame, data: Data, interpreter: Runner,
-               invoker: Runner, launcher: Launcher, console: Console) extends MenuBar {
+                       invoker: Runner, launcher: Launcher, console: Console, examples: Seq[Example]) extends MenuBar {
   private val undo = new MenuItem("")
 
   private val redo = new MenuItem("")
@@ -159,14 +159,7 @@ private class MainMenu(tab: EditorTab, frame: Frame, data: Data, interpreter: Ru
 
   contents += new Menu("Examples") {
     mnemonic = Key.X
-    contents += new MenuItem(new ExampleAction("Project Euler 1", '1', tab, ToyExamples.Euler1))
-    contents += new MenuItem(new ExampleAction("Project Euler 2", '2', tab, ToyExamples.Euler2))
-    contents += new MenuItem(new ExampleAction("Project Euler 6", '6', tab, ToyExamples.Euler6))
-    contents += new MenuItem(new ExampleAction("Fibonacci Numbers", 'F', tab, ToyExamples.FibonacciNumbers))
-    contents += new MenuItem(new ExampleAction("Prime Numbers", 'P', tab, ToyExamples.PrimeNumbers))
-    contents += new MenuItem(new ExampleAction("Multiplication Table", 'M', tab, ToyExamples.MultiplicationTable))
-    contents += new MenuItem(new ExampleAction("Exception", 'E', tab, ToyExamples.Exception))
-    contents += new MenuItem(new ExampleAction("Stack Overflow", 'S', tab, ToyExamples.StackOverflow))
+    contents ++= examples.map(it => new MenuItem(new ExampleAction(it.name, it.mnemonic, tab, it.code)))
   }
 
   contents += new Menu("Window") {

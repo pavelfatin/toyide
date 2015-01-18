@@ -42,4 +42,6 @@ object ToyLanguage extends Language {
   def adviser = ToyAdviser
 
   def fileType = FileType("Toy file", "toy")
+
+  def examples = ToyExamples.Values
 }

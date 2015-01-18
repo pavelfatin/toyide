@@ -17,16 +17,15 @@
 
 package com.pavelfatin.toyide.ide
 
+import com.pavelfatin.toyide.Language
+
 import swing._
 import event.WindowClosed
 import com.pavelfatin.toyide.document.Location
 import java.awt.event.{FocusAdapter, FocusEvent}
-import com.pavelfatin.toyide.languages.toy.ToyLanguage
 import com.pavelfatin.toyide.editor.{EditorFactory, HistoryImpl, Editor}
 
-class MainFrame(text: String) extends Frame {
-  private val Language = ToyLanguage
-
+class MainFrame(language: Language, text: String) extends Frame {
   reactions += {
     case WindowClosed(_) =>
       primaryEditor.dispose()
@@ -39,24 +38,24 @@ class MainFrame(text: String) extends Frame {
 
   private val history = new HistoryImpl()
 
-  private val primaryEditor = EditorFactory.createEditorFor(Language, history)
+  private val primaryEditor = EditorFactory.createEditorFor(language, history)
 
   private lazy val secondaryEditor =
-    EditorFactory.createEditorFor(primaryEditor.document, primaryEditor.data, Language, history)
+    EditorFactory.createEditorFor(primaryEditor.document, primaryEditor.data, language, history)
 
   private val status = new StatusBar()
 
-  private val tab = new EditorTabImpl(Language.fileType, history, primaryEditor, secondaryEditor)
+  private val tab = new EditorTabImpl(language.fileType, history, primaryEditor, secondaryEditor)
 
   private val console = new ConsoleImpl()
 
   private val launcher = new LauncherImpl()
 
-  private val menu = new MainMenu(tab, this, primaryEditor.data,
-    new NodeInterpreter(console), new NodeInvoker(console), launcher, console)
+  private val menu = new MainMenu(tab, this, primaryEditor.data, new NodeInterpreter(console),
+    new NodeInvoker(console), launcher, console, language.examples)
 
   private def updateTitle() {
-    val name = tab.file.map(_.getName.replaceAll("\\.%s".format(Language.fileType.extension), ""))
+    val name = tab.file.map(_.getName.replaceAll("\\.%s".format(language.fileType.extension), ""))
     title = "%s - ToyIDE".format(name.getOrElse("Untitled"))
   }
 
@@ -110,5 +109,5 @@ class MainFrame(text: String) extends Frame {
 
   updateTitle()
 
-  tab.text = text
+  tab.text = text.filter(_ != '\r').trim
 }
