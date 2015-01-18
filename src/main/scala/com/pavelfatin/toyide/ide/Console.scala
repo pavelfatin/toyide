@@ -28,3 +28,14 @@ trait Console extends Output {
   def clear()
 }
 
+object Console {
+  object Null extends Console {
+    def print(s: String) {}
+
+    def print(s: String, color: Color) {}
+
+    def printLink(s: String, line: Int) {}
+
+    def clear() {}
+  }
+}
