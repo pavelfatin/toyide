@@ -18,17 +18,17 @@
 package com.pavelfatin.toyide.interpreter
 
 trait Context {
-  def get(local: Boolean, name: String): Value[_]
+  def get(local: Boolean, name: String): Value
 
-  def put(local: Boolean, name: String, value: Value[_])
+  def put(local: Boolean, name: String, value: Value)
 
-  def update(local: Boolean, name: String, value: Value[_])
+  def update(local: Boolean, name: String, value: Value)
 
   def inScope(action: => Unit)
 
-  def inFrame(place: Place)(action: => Unit): Option[Value[_]]
+  def inFrame(place: Place)(action: => Unit): Option[Value]
 
-  def dropFrame(value: Option[Value[_]])
+  def dropFrame(value: Option[Value])
 
   def trace: Seq[Place]
 }

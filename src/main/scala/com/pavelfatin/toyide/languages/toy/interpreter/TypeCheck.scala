@@ -30,7 +30,7 @@ trait TypeCheck extends ToyEvaluable with Expression {
     result
   }
 
-  private def check(context: Context, nodeType: Option[NodeType], value: Option[Value[_]]) {
+  private def check(context: Context, nodeType: Option[NodeType], value: Option[Value]) {
     nodeType match {
       case Some(t) =>
         (t, value) match {

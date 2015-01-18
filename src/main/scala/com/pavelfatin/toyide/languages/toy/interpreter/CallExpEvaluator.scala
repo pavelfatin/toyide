@@ -33,7 +33,7 @@ trait CallExpEvaluator extends ToyEvaluable { self: CallExpression =>
     }
   }
 
-  private def evaluatePredefinedCall(context: Context, output: Output): Option[Value[_]] = {
+  private def evaluatePredefinedCall(context: Context, output: Output): Option[Value] = {
     for (exp <- expressions; value <- exp.evaluate(context, output))
       output.print(value.presentation)
 
@@ -43,7 +43,7 @@ trait CallExpEvaluator extends ToyEvaluable { self: CallExpression =>
     None
   }
 
-  private def evaluateCall(context: Context, output: Output): Option[Value[_]] = {
+  private def evaluateCall(context: Context, output: Output): Option[Value] = {
     val (pairs, unboundExpressions, unboundParameters) = bindings
 
     if (unboundExpressions.nonEmpty)

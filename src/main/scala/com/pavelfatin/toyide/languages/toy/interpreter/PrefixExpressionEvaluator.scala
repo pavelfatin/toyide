@@ -24,7 +24,7 @@ import com.pavelfatin.toyide.languages.toy.node.PrefixExpression
 import com.pavelfatin.toyide.Output
 
 trait PrefixExpressionEvaluator extends ToyEvaluable { self: PrefixExpression =>
-  override def evaluate(context: Context, output: Output): Option[Value[_]] = {
+  override def evaluate(context: Context, output: Output): Option[Value] = {
     val t = prefix.getOrElse(
       interrupt(context, "Prefix token not found: %s", span.text))
 

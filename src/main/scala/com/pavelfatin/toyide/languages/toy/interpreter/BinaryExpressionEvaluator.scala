@@ -26,7 +26,7 @@ import com.pavelfatin.toyide.languages.toy.ToyType._
 import com.pavelfatin.toyide.Output
 
 trait BinaryExpressionEvaluator extends ToyEvaluable { self: BinaryExpression =>
-  override def evaluate(context: Context, output: Output): Option[Value[_]] = {
+  override def evaluate(context: Context, output: Output): Option[Value] = {
     val (leftNode, token, rightNode) = parts.getOrElse(
       interrupt(context, "Incorrect expression: %s", span.text))
 
@@ -53,7 +53,7 @@ trait BinaryExpressionEvaluator extends ToyEvaluable { self: BinaryExpression =>
     Some(value)
   }
 
-  private def evaluateValues(context: Context, leftValue: Value[_], kind: TokenKind, rightValue: Value[_])= {
+  private def evaluateValues(context: Context, leftValue: Value, kind: TokenKind, rightValue: Value) = {
     (leftValue, kind, rightValue) match {
       case (IntegerValue(l), GT, IntegerValue(r)) => BooleanValue(l > r)
       case (IntegerValue(l), GT_EQ, IntegerValue(r)) => BooleanValue(l >= r)

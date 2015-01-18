@@ -17,10 +17,10 @@
 
 package com.pavelfatin.toyide.languages.toy.interpreter
 
-import com.pavelfatin.toyide.interpreter.Value
+import com.pavelfatin.toyide.interpreter.DelegateValue
 import com.pavelfatin.toyide.languages.toy.ToyType
 
-sealed trait ToyValue[T] extends Value[T]
+sealed trait ToyValue[T] extends DelegateValue[T]
 
 object ToyValue {
   case class StringValue(content: String) extends ToyValue[String] {

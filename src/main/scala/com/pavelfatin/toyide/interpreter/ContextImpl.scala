@@ -18,7 +18,6 @@
 package com.pavelfatin.toyide.interpreter
 
 import collection.mutable.{ListBuffer, Map}
-import java.lang.IllegalStateException
 
 class ContextImpl extends Context {
   private val MaxFrames = 100
@@ -27,16 +26,16 @@ class ContextImpl extends Context {
 
   private var allocations = List[ListBuffer[String]]()
 
-  private val heap = Map[String, Value[_]]()
+  private val heap = Map[String, Value]()
 
-  def get(local: Boolean, name: String): Value[_] = {
+  def get(local: Boolean, name: String): Value = {
     storage(local).get(name).getOrElse {
       throw new IllegalStateException(
         "%s value not found: %s".format(place(local), name))
     }
   }
 
-  def put(local: Boolean, name: String, value: Value[_]) {
+  def put(local: Boolean, name: String, value: Value) {
     storage(local).put(name, value) match {
       case Some(v) =>
         throw new IllegalStateException(
@@ -48,7 +47,7 @@ class ContextImpl extends Context {
     scope.append(name)
   }
 
-  def update(local: Boolean, name: String, value: Value[_]) {
+  def update(local: Boolean, name: String, value: Value) {
     storage(local).put(name, value) match {
       case Some(previous) =>
         if (previous.valueType != value.valueType)
@@ -95,7 +94,7 @@ class ContextImpl extends Context {
     allocations = allocations.tail
   }
 
-  def inFrame(place: Place)(action: => Unit): Option[Value[_]] = {
+  def inFrame(place: Place)(action: => Unit): Option[Value] = {
     if (frames.size >= MaxFrames)
       throw new IllegalStateException("Stack overflow")
 
@@ -110,7 +109,7 @@ class ContextImpl extends Context {
     result
   }
 
-  def dropFrame(value: Option[Value[_]]) {
+  def dropFrame(value: Option[Value]) {
     if (frames.isEmpty)
       throw new IllegalStateException("No frame to drop")
 
@@ -119,7 +118,7 @@ class ContextImpl extends Context {
 
   def trace: Seq[Place] = frames.map(_.place)
 
-  private case class Frame(place: Place, values: Map[String, Value[_]] = Map())
+  private case class Frame(place: Place, values: Map[String, Value] = Map())
 
-  private case class ReturnException(value: Option[Value[_]]) extends RuntimeException
+  private case class ReturnException(value: Option[Value]) extends RuntimeException
 }

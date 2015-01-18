@@ -22,7 +22,7 @@ import com.pavelfatin.toyide.interpreter._
 import com.pavelfatin.toyide.Output
 
 trait ScopeEvaluator extends ToyEvaluable { self: Scope =>
-  override def evaluate(context: Context, output: Output): Option[Value[_]] = {
+  override def evaluate(context: Context, output: Output): Option[Value] = {
     wrap(context) {
       context.inScope {
         children.foreach {

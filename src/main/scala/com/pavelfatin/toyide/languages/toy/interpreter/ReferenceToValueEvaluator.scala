@@ -22,7 +22,7 @@ import com.pavelfatin.toyide.interpreter._
 import com.pavelfatin.toyide.Output
 
 trait ReferenceToValueEvaluator extends ToyEvaluable { self: ReferenceToValue =>
-  override def evaluate(context: Context, output: Output): Option[Value[_]] = {
+  override def evaluate(context: Context, output: Output): Option[Value] = {
     val node = target.getOrElse(
       interrupt(context, "Target value not found: %s", identifier))
 
@@ -32,7 +32,7 @@ trait ReferenceToValueEvaluator extends ToyEvaluable { self: ReferenceToValue =>
       case _ => interrupt(context, "Non-value target for reference %s: %s", identifier, node.span.text)
     }
 
-    wrap[Some[Value[_]]](context) { // [T] bug in Scalac ?
+    wrap[Some[Value]](context) { // [T] bug in Scalac ?
       Some(context.get(local, identifier))
     }
   }

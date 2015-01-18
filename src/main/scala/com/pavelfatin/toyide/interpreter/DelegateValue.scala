@@ -17,14 +17,8 @@
 
 package com.pavelfatin.toyide.interpreter
 
-import com.pavelfatin.toyide.node.NodeType
+trait DelegateValue[T] extends Value {
+  def content: T
 
-trait Value {
-  def valueType: NodeType
-
-  def presentation: String
-}
-
-object ValueType {
-  def unapply(value: Value) = Some(value.valueType)
+  def presentation = content.toString
 }

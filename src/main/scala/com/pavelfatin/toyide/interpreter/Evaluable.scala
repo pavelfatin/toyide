@@ -21,5 +21,5 @@ import com.pavelfatin.toyide.Output
 
 trait Evaluable {
   @throws(classOf[EvaluationException])
-  def evaluate(context: Context, output: Output): Option[Value[_]] = None
+  def evaluate(context: Context, output: Output): Option[Value] = None
 }

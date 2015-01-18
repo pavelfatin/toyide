@@ -23,7 +23,7 @@ import com.pavelfatin.toyide.node.Node
 import com.pavelfatin.toyide.Output
 
 trait ExpressionHolderEvaluator extends ToyEvaluable { self: ExpressionHolder with Node =>
-  protected def evaluateExpression(context: Context, output: Output): Value[_] = {
+  protected def evaluateExpression(context: Context, output: Output): Value = {
     val exp = expression.getOrElse(
       interrupt(context, "Expression not found: %s", span.text))
 
