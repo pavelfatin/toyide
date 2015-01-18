@@ -17,12 +17,11 @@
 
 package com.pavelfatin.toyide.languages.toy
 
-import com.pavelfatin.toyide.editor.Adviser
-import parser.ProgramParser
+import com.pavelfatin.toyide.editor.AdviserTestBase
+import com.pavelfatin.toyide.languages.toy.parser.ProgramParser
 import org.junit.Test
-import org.junit.Assert._
 
-class ToyAdviserTest {
+class ToyAdviserTest extends AdviserTestBase(ToyLexer, ProgramParser, ToyAdviser) {
   @Test
   def insideEmptyProgram() {
     assertVariantsAre("|")("print", "println", "def", "var", "if", "while")
@@ -30,21 +29,21 @@ class ToyAdviserTest {
 
   @Test
   def atIdentifier() {
-    assertVariantsAre("def |")("")
-    assertVariantsAre("def foo|")("")
-    assertVariantsAre("def |foo")("")
-    assertVariantsAre("def foo|bar")("")
+    assertVariantsAre("def |")()
+    assertVariantsAre("def foo|")()
+    assertVariantsAre("def |foo")()
+    assertVariantsAre("def foo|bar")()
 
-    assertVariantsAre("var |")("")
-    assertVariantsAre("var foo|")("")
-    assertVariantsAre("var |foo")("")
-    assertVariantsAre("var foo|bar")("")
+    assertVariantsAre("var |")()
+    assertVariantsAre("var foo|")()
+    assertVariantsAre("var |foo")()
+    assertVariantsAre("var foo|bar")()
   }
 
   @Test
   def afterKeyword() {
-    assertVariantsAre("if |")("")
-    assertVariantsAre("while |")("")
+    assertVariantsAre("if |")()
+    assertVariantsAre("while |")()
   }
 
   @Test
@@ -159,19 +158,5 @@ class ToyAdviserTest {
   def variableItself() {
     assertVariantsAre("var a: integer = |")("true", "false")
     assertVariantsAre("var a: integer = 1; var b: integer = |")("a", "true", "false")
-  }
-
-  protected def assertVariantsAre(code: String)(expected: String*) {
-    val label = Adviser.Anchor
-    val s = code.replaceFirst("\\|", label)
-    val root = ProgramParser.parse(ToyLexer.analyze(s))
-    val anchor = root.elements.find(it => it.isLeaf && it.span.text.contains(label)).lastOption
-    anchor match {
-      case Some(it) =>
-        val actual = ToyAdviser.variants(root, it)
-        assertEquals(expected.mkString(", "), actual.map(_.title).mkString(", "))
-      case None =>
-        fail("No anchor found: %s".format(code))
-    }
   }
 }
