@@ -1,0 +1,6 @@
+HTTP/1.0 200 OK
+Cache-Control: max-age=3600
+Content-Type: text/html
+Content-Length: 269
+
+<html><head><title>Index of ./license/</title></head><h1>Index of ./license/</h1><hr><pre><a href='./jasmin-license.txt'>jasmin-license.txt</a><br><a href='./license.txt'>license.txt</a><br><a href='./scala-license.txt'>scala-license.txt</a><br></pre><hr></body></html>

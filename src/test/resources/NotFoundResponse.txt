@@ -1,0 +1,6 @@
+HTTP/1.0 404 Not Found
+Cache-Control: max-age=3600
+Content-Type: text/html
+Content-Length: 55
+
+<html><h1>Not found: ./license/unknown.html</h1></html>
