@@ -17,7 +17,7 @@
 
 package com.pavelfatin.toyide.editor.controller
 
-import com.pavelfatin.toyide.document.Document
+import com.pavelfatin.toyide.document.{Bias, Document}
 import com.pavelfatin.toyide.editor.{AnAction, History, Data, Terminal}
 
 private class Rename(document: Document, terminal: Terminal, data: Data, history: History) extends AnAction {
@@ -28,14 +28,14 @@ private class Rename(document: Document, terminal: Terminal, data: Data, history
     val leafs = data.connectedLeafsFor(terminal.offset)
     if (leafs.nonEmpty) {
       terminal.selection = None
-      terminal.highlights = leafs.map(_.span)
+      terminal.highlights = leafs.map(_.span.interval)
       val id = leafs.head.span.text
       terminal.edit(id, "Rename") {
         case Some(text) =>
           terminal.highlights = Seq.empty
           history.recording(document, terminal) {
-            val anchor = document.createAnchorAt(terminal.offset)
-            leafs.map(_.span).sortBy(_.begin).reverse.foreach(document.replace(_, text))
+            val anchor = document.createAnchorAt(terminal.offset, Bias.Right)
+            leafs.map(_.span.interval).sortBy(_.begin).reverse.foreach(document.replace(_, text))
             terminal.offset = anchor.offset
             anchor.dispose()
           }

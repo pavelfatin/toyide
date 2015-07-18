@@ -19,10 +19,12 @@ package com.pavelfatin.toyide.editor
 
 import com.pavelfatin.toyide.node.Node
 import com.pavelfatin.toyide.lexer.Token
-import com.pavelfatin.toyide.{Span, Observable}
+import com.pavelfatin.toyide.{Interval, ObservableEvents}
 import com.pavelfatin.toyide.inspection.Decoration
 
-trait Data extends Observable {
+trait Data extends ObservableEvents[DataEvent] {
+  def text: String
+
   def tokens: Seq[Token]
 
   def structure: Option[Node]
@@ -31,6 +33,8 @@ trait Data extends Observable {
 
   def hasFatalErrors: Boolean
 
+  def pass: Pass
+
   def hasNextPass: Boolean
 
   def nextPass()
@@ -38,4 +42,18 @@ trait Data extends Observable {
   def compute()
 }
 
-case class Error(span: Span, message: String, decoration: Decoration = Decoration.Underline, fatal: Boolean = true)
+case class DataEvent(pass: Pass, errors: Seq[Error])
+
+case class Error(interval: Interval, message: String, decoration: Decoration = Decoration.Underline, fatal: Boolean = true)
+
+sealed abstract class Pass(val next: Option[Pass])
+
+object Pass {
+  case object Text extends Pass(Some(Lexer))
+
+  case object Lexer extends Pass(Some(Parser))
+
+  case object Parser extends Pass(Some(Inspections))
+
+  case object Inspections extends Pass(None)
+}

@@ -47,24 +47,32 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   def processKeyPressed(e: KeyEvent) {
     if(isModifierKey(e.getKeyCode)) return
 
+    notifyObservers(ActionStarted)
+
     history.recording(document, terminal) {
       doProcessKeyPressed(e)
     }
 
     processActions(e)
+
+    notifyObservers(ActionFinished)
   }
 
   def processKeyTyped(e: KeyEvent) {
+    notifyObservers(ActionStarted)
+
     history.recording(document, terminal) {
       doProcessKeyTyped(e)
     }
+
+    notifyObservers(ActionFinished)
   }
 
   def processActions(e: KeyEvent) {
     val keyStroke = AWTKeyStroke.getAWTKeyStroke(e.getKeyCode, e.getModifiers).toString
 
-    for (action <- actions.all;
-         if action.keys.contains(keyStroke);
+    for (action <- actions.all
+         if action.keys.contains(keyStroke)
          if action.enabled) {
       action()
       e.consume()
@@ -80,7 +88,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
           if (e.isControlDown) {
             terminal.offset = seek(-1)
           } else {
-            terminal.offset = terminal.selection.filter(s => !e.isShiftDown).map(_.begin).getOrElse(terminal.offset - 1)
+            terminal.offset = terminal.selection.filter(s => !e.isShiftDown).fold(terminal.offset - 1)(_.begin)
           }
           terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
         }
@@ -89,7 +97,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
           if (e.isControlDown) {
             terminal.offset = seek(1)
           } else {
-            terminal.offset = terminal.selection.filter(s => !e.isShiftDown).map(_.end).getOrElse(terminal.offset + 1)
+            terminal.offset = terminal.selection.filter(s => !e.isShiftDown).fold(terminal.offset + 1)(_.end)
           }
           terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
         }
@@ -109,15 +117,13 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
         if (document.lineNumberOf(terminal.offset) < document.linesCount - 1) {
           jumpTo((document.linesCount - 1).min(document.lineNumberOf(terminal.offset) + 10), e.isShiftDown)
         }
-      case KeyEvent.VK_HOME if e.isControlDown => {
+      case KeyEvent.VK_HOME if e.isControlDown =>
         terminal.offset = 0
         terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
-      }
-      case KeyEvent.VK_END if e.isControlDown => {
+      case KeyEvent.VK_END if e.isControlDown =>
         terminal.offset = document.length
         terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
-      }
-      case KeyEvent.VK_HOME => {
+      case KeyEvent.VK_HOME =>
         val origin = terminal.offset
         val edge = document.startOffsetOf(document.lineNumberOf(terminal.offset))
         val next = seek(c => c.isWhitespace, edge, 1)
@@ -125,14 +131,11 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
           .getOrElse(edge)
         terminal.offset = if(next == origin) edge else next
         terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
-      }
-      case KeyEvent.VK_END => {
+      case KeyEvent.VK_END =>
         terminal.offset = document.endOffsetOf(document.lineNumberOf(terminal.offset))
         terminal.selection = if(e.isShiftDown) fromOriginTo(terminal.offset) else None
-      }
-      case KeyEvent.VK_BACK_SPACE if terminal.selection.isDefined => {
+      case KeyEvent.VK_BACK_SPACE if terminal.selection.isDefined =>
         terminal.insertInto(document, "")
-      }
       case KeyEvent.VK_BACK_SPACE =>
         if (terminal.offset > 0) {
           val length = if (e.isControlDown) terminal.offset - seek(-1) else 1
@@ -144,9 +147,8 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
           terminal.selection = None
           document.remove(terminal.offset, next + complement.mkString.length)
         }
-      case KeyEvent.VK_DELETE if !e.isShiftDown && terminal.selection.isDefined => {
+      case KeyEvent.VK_DELETE if !e.isShiftDown && terminal.selection.isDefined =>
         terminal.insertInto(document, "")
-      }
       case KeyEvent.VK_DELETE if !e.isShiftDown =>
         if (terminal.offset < document.length) {
           val length = if (e.isControlDown) seek(1) - terminal.offset else 1
@@ -188,8 +190,8 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
     val suffix = document.text(terminal.offset, document.endOffsetOf(n))
     val i1 = indentOf(n)
     val i2 = if (prefix.trim.endsWith(BlockOpening.toString)) tabSize else 0
-    val i3 = document.charOptionAt(terminal.offset).filter(_ == BlockClosing).map(it => tabSize).getOrElse(0)
-    val shift = suffix.takeWhile(_.isWhitespace).size
+    val i3 = document.charOptionAt(terminal.offset).filter(_ == BlockClosing).fold(0)(_ => tabSize)
+    val shift = suffix.takeWhile(_.isWhitespace).length
     val indent = 0.max((if (i2 == 0 && i3 > i1) i1 + i2 - i3 else i1 + i2) - shift)
     var s = "\n" + Seq.fill(indent)(' ').mkString
     if (i2 > 0 && i3 > 0) s += "\n" + Seq.fill(i1 + i2 - i3)(' ').mkString
@@ -203,10 +205,10 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
 
     val complement = nextChar.filter(_ == c).flatMap(it => pairs.find(_._2 == it).map(_._1))
 
-    if (prevChar.filter(prev => complement.map(_ == prev).getOrElse(false)).isDefined) {
+    if (prevChar.exists(complement.contains)) {
       terminal.offset += 1
     } else {
-      val complement = pairs.find(_._1 == c).map(_._2).filter(it => nextChar.map(_ != it).getOrElse(true))
+      val complement = pairs.find(_._1 == c).map(_._2).filter(!nextChar.contains(_))
       val s = c.toString + complement.mkString
       if (s == BlockClosing.toString) {
         val indent = terminal.offset - document.startOffsetOf(document.lineNumberOf(terminal.offset))
@@ -244,8 +246,8 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
       None
     }
     terminal.offset = targetOffset.orElse(leafSpan.map(_.end)).getOrElse(pointOffset)
-    origin = leafSpan.map(_.begin).getOrElse(terminal.offset)
-    terminal.selection = leafSpan
+    origin = leafSpan.fold(terminal.offset)(_.begin)
+    terminal.selection = leafSpan.map(_.interval)
   }
 
   def processMouseDragged(e: MouseEvent) {
@@ -285,7 +287,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   private def indentOf(line: Int): Int = {
     if(line < 0) 0 else {
       val s = document.text(document.startOffsetOf(line), document.endOffsetOf(line))
-      if (s.trim.isEmpty) indentFrom(line - 1) else s.takeWhile(_.isWhitespace).size
+      if (s.trim.isEmpty) indentFrom(line - 1) else s.takeWhile(_.isWhitespace).length
     }
   }
 
@@ -293,7 +295,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
     if(line < 0) 0 else {
       val s = document.text(document.startOffsetOf(line), document.endOffsetOf(line))
       if (s.trim.isEmpty) indentFrom(line - 1) else
-        s.takeWhile(_.isWhitespace).size + (if (s.trim.endsWith("{")) tabSize else 0)
+        s.takeWhile(_.isWhitespace).length + (if (s.trim.endsWith("{")) tabSize else 0)
     }
   }
 

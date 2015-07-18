@@ -24,8 +24,9 @@ import javax.swing.KeyStroke
 import com.pavelfatin.toyide.Example
 import com.pavelfatin.toyide.editor._
 
-private class MainMenu(tab: EditorTab, frame: Frame, data: Data, interpreter: Runner,
-                       invoker: Runner, launcher: Launcher, console: Console, examples: Seq[Example]) extends MenuBar {
+private class MainMenu(tab: EditorTab, frame: Frame, data: Data, interpreter: Runner, invoker: Runner, launcher: Launcher,
+                       console: Console, coloring: DynamicColoring, examples: Seq[Example]) extends MenuBar {
+
   private val undo = new MenuItem("")
 
   private val redo = new MenuItem("")
@@ -160,6 +161,23 @@ private class MainMenu(tab: EditorTab, frame: Frame, data: Data, interpreter: Ru
   contents += new Menu("Examples") {
     mnemonic = Key.X
     contents ++= examples.map(it => new MenuItem(new ExampleAction(it.name, it.mnemonic, tab, it.code)))
+  }
+
+  contents += new Menu("Coloring") {
+    mnemonic = Key.C
+    contents ++= coloring.names.map(it => new RadioMenuItem(it) {
+      action = new ColoringAction(coloring, it)
+
+      coloring.onChange {
+        updateSelection()
+      }
+
+      updateSelection()
+
+      private def updateSelection() {
+        selected = coloring.name == it
+      }
+    })
   }
 
   contents += new Menu("Window") {

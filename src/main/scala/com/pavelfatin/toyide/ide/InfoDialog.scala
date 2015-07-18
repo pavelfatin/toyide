@@ -31,7 +31,7 @@ private class InfoDialog(owner: Window, file: String, scrolling: Boolean) extend
 
   private val pane = new EditorPane() {
     focusable = false
-    val spacer = new EmptyBorder(5, 10, 10, 10);
+    val spacer = new EmptyBorder(5, 10, 10, 10)
     border = if (scrolling) spacer else new CompoundBorder(new EtchedBottomBorder(), spacer)
     editorKit = new SynchronousHTMLEditorKit()
     peer.addHyperlinkListener(new LinkRedirector())

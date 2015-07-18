@@ -17,7 +17,8 @@
 
 package com.pavelfatin.toyide.interpreter
 
-import collection.mutable.{ListBuffer, Map}
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 class ContextImpl extends Context {
   private val MaxFrames = 100
@@ -26,13 +27,12 @@ class ContextImpl extends Context {
 
   private var allocations = List[ListBuffer[String]]()
 
-  private val heap = Map[String, Value]()
+  private val heap = mutable.Map[String, Value]()
 
   def get(local: Boolean, name: String): Value = {
-    storage(local).get(name).getOrElse {
+    storage(local).getOrElse(name,
       throw new IllegalStateException(
-        "%s value not found: %s".format(place(local), name))
-    }
+        "%s value not found: %s".format(place(local), name)))
   }
 
   def put(local: Boolean, name: String, value: Value) {
@@ -82,7 +82,7 @@ class ContextImpl extends Context {
   }
 
   private def clearAllocations() {
-    val storage = frames.headOption.map(_.values).getOrElse(heap)
+    val storage = frames.headOption.fold(heap)(_.values)
     for (name <- allocations.head) {
       storage.remove(name) match {
         case Some(_) => // ok
@@ -118,7 +118,7 @@ class ContextImpl extends Context {
 
   def trace: Seq[Place] = frames.map(_.place)
 
-  private case class Frame(place: Place, values: Map[String, Value] = Map())
+  private case class Frame(place: Place, values: mutable.Map[String, Value] = mutable.Map())
 
   private case class ReturnException(value: Option[Value]) extends RuntimeException
 }

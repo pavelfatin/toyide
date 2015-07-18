@@ -45,7 +45,7 @@ object Application extends SwingApplication {
   }
 
   private def openMainFrame(language: Language) {
-    val code = language.examples.headOption.map(_.code).getOrElse("")
+    val code = language.examples.headOption.fold("")(_.code)
     val frame = new MainFrame(language, code)
     frame.preferredSize = new Dimension(874, 696)
     open(frame)

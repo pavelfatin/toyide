@@ -47,5 +47,13 @@ trait Document extends LinesHolder with ObservableEvents[DocumentEvent] {
     replace(interval.begin, interval.end, s)
   }
 
-  def createAnchorAt(offset: Int): Anchor
+  def createAnchorAt(offset: Int, bias: Bias): Anchor
+}
+
+sealed trait Bias
+
+object Bias {
+  case object Left extends Bias
+
+  case object Right extends Bias
 }

@@ -33,7 +33,7 @@ private case class TreeNodeAdapter(delegate: Node) extends TreeNode {
   def getIndex(node: TreeNode) =
     delegate.children.indexWhere(node.asInstanceOf[TreeNodeAdapter].delegate == _)
 
-  def getParent = delegate.parent.map(convert).getOrElse(null)
+  def getParent = delegate.parent.map(convert).orNull
 
   def getChildCount = delegate.children.size
 

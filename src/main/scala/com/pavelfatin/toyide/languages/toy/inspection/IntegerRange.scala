@@ -26,7 +26,7 @@ object IntegerRange extends Inspection {
   val Message = "Integer number too large"
 
   def inspect(node: Node): Seq[Mark] = node match {
-    case l: Literal if l.nodeType == Some(ToyType.IntegerType) =>
+    case l: Literal if l.nodeType.contains(ToyType.IntegerType) =>
       try {
         Integer.parseInt(l.span.text)
         Seq.empty

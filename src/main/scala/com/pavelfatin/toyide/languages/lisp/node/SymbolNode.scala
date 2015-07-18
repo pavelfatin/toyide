@@ -32,7 +32,6 @@ class SymbolNode extends NodeImpl("symbol")
 
   def target = if (!resolvable) None else accessibleSymbols.find {
     case SymbolNode(name) => name == identifier
-    case _ => false
   }
 
   override def identifier = source.map(_.span.text).mkString

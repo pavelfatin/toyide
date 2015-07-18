@@ -37,7 +37,7 @@ class MacroFunction(val name: Option[String], parameters: Parameters, expression
   }
 
   def presentation = {
-    val prefix = name.map(_ + "_").getOrElse("")
+    val prefix = name.fold("")(_ + "_")
     prefix + "macro" + parameters.presentation
   }
 }

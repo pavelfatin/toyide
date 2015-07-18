@@ -36,7 +36,7 @@ private class UnindentSelection(document: Document, terminal: Terminal, tabSize:
       val interval = Interval(document.startOffsetOf(beginLine), document.endOffsetOf(endLine))
 
       val text = document.text(interval)
-      val replacement = text.split("\n").map(s => s.drop(tabSize.min(s.takeWhile(_.isWhitespace).size))).mkString("\n")
+      val replacement = text.split("\n").map(s => s.drop(tabSize.min(s.takeWhile(_.isWhitespace).length))).mkString("\n")
 
       val decrement = text.length - replacement.length
       terminal.offset -= decrement

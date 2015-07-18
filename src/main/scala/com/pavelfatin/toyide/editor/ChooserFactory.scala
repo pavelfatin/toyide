@@ -18,7 +18,7 @@
 package com.pavelfatin.toyide.editor
 
 import javax.swing.border.LineBorder
-import java.awt.{Font, Color}
+import java.awt.{Point, Font, Color}
 import javax.swing._
 import java.awt.event._
 

@@ -22,5 +22,5 @@ trait NamedNode extends Node {
 }
 
 object NamedNode {
-  def unapply(named: NamedNode) = Some((named.name))
+  def unapply(named: NamedNode) = Some(named.name)
 }

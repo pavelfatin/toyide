@@ -30,7 +30,7 @@ object DivisionByZero extends Inspection {
   def inspect(node: Node): Seq[Mark] = node match {
     case e: BinaryExpression => e.children match {
         case (Expression(IntegerType)) :: NodeToken(Token(SLASH, _, _)) ::  (r @ Expression(IntegerType)) :: Nil
-          if r.optimized == Some("0") => Seq(Mark(e, Message, Decoration.Fill, true))
+          if r.optimized.contains("0") => Seq(Mark(e, Message, Decoration.Fill, true))
         case _ => Seq.empty
       }
     case _ => Seq.empty

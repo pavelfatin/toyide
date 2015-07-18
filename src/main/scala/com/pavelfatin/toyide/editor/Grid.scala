@@ -17,37 +17,38 @@
 
 package com.pavelfatin.toyide.editor
 
+import java.awt.{Dimension, Insets, Point, Rectangle}
+
 import com.pavelfatin.toyide.document.Location
 
-private class Grid(val cellSize: Size, val insets: Insets) {
+class Grid(val cellSize: Dimension, val insets: Insets) {
   def toPoint(location: Location): Point =
-    Point(insets.left + cellSize.width * location.indent,
-      insets.top + cellSize.height * (location.line + 1))
+    new Point(insets.left + cellSize.width * location.indent,
+      insets.top + cellSize.height * location.line)
 
   def toLocation(point: Point): Location = {
-    val line = math.round((point.y - insets.top).toDouble / cellSize.height.toDouble).toInt - 1
-    val indent = math.round((point.x - insets.left).toDouble / cellSize.width.toDouble).toInt
+    val line = math.floor((point.y - insets.top).toDouble / cellSize.height.toDouble).toInt
+    val indent = math.floor((point.x - insets.left).toDouble / cellSize.width.toDouble).toInt
     Location(0.max(line), 0.max(indent))
   }
 
-  def toSize(lines: Int, maximumIndent: Int): Size = {
+  def toSize(lines: Int, maximumIndent: Int): Dimension = {
     val edge = toPoint(Location(lines, maximumIndent))
-    Size(edge.x + cellSize.width + insets.right, edge.y + insets.bottom)
+    new Dimension(edge.x + cellSize.width + insets.right, edge.y + insets.bottom)
   }
-}
 
-private case class Size(width: Int, height: Int)
+  def toArea(rectangle: Rectangle): Area = {
+    val beginLine = 0.max(math.floor((rectangle.y - insets.top).toDouble / cellSize.height.toDouble).toInt)
+    val beginIndent = 0.max(math.floor((rectangle.x - insets.left).toDouble / cellSize.width.toDouble).toInt)
 
-private case class Insets(top: Int, left: Int, bottom: Int, right: Int)
+    val endLine = math.ceil((rectangle.y - insets.top + rectangle.height).toDouble / cellSize.height.toDouble).toInt
+    val endIndent = math.ceil((rectangle.x - insets.left + rectangle.width).toDouble / cellSize.width.toDouble).toInt
 
-private object Insets {
-  implicit def fromAwtInsets(insets: java.awt.Insets) = Insets(insets.top, insets.left, insets.bottom, insets.right)
-}
+    Area(beginLine, beginIndent, endIndent - beginIndent, endLine - beginLine)
+  }
 
-private case class Point(x: Int, y: Int) {
-  def +(size: Size) = Point(x + size.width, y + size.height)
-}
-
-private object Point {
-  implicit def fromAwtPoint(point: java.awt.Point) = Point(point.x, point.y)
+  def toRectangle(area: Area): Rectangle = {
+    val point = toPoint(Location(area.line, area.indent))
+    new Rectangle(point.x, point.y, cellSize.width * area.width, cellSize.height * area.height)
+  }
 }

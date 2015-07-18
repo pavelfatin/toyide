@@ -17,31 +17,23 @@
 
 package com.pavelfatin.toyide
 
-case class Interval(begin: Int, end: Int) {
+case class Interval(begin: Int, end: Int) extends IntervalLike {
   if(begin < 0) throw new IllegalArgumentException("Begin must be positive: " + begin)
   if(end < 0) throw new IllegalArgumentException("End must be positive: " + end)
   if(length < 0) throw new IllegalArgumentException("Length must be positive: " + length)
 
-  def length = end - begin
+  def intersection(interval: Interval): Interval = {
+    val from = begin.max(interval.begin)
+    Interval(from, from.max(end.min(interval.end)))
+  }
 
-  def empty = length == 0
-
-  def includes(offset: Int) = begin <= offset && offset < end
-
-  def touches(offset: Int) = begin <= offset && offset <= end
-
-  def includes(interval: Interval) =
-    (!empty && !interval.empty) &&
-      interval.begin >= begin && interval.end <=end
-
-  def intersectsWith(interval: Interval) =
-    (!empty && !interval.empty) &&
-    (includes(interval.begin) || includes(interval.end - 1) ||
-    interval.includes(begin) || interval.includes(end - 1))
-
-  def withBeginShift(n: Int) = copy(end = end + n)
+  def withBeginShift(n: Int) = copy(begin = begin + n)
 
   def withEndShift(n: Int) = copy(end = end + n)
+
+  def +(n: Int) = Interval(begin + n, end + n)
+
+  def -(n: Int) = Interval(begin - n, end - n)
 
   def transformWith(f: Int => Int) = copy(begin = f(begin), end = f(end))
 }

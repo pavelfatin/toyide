@@ -21,7 +21,7 @@ import javax.swing.JTree
 import javax.swing.tree.DefaultTreeModel
 import javax.swing.event.{TreeSelectionEvent, TreeSelectionListener}
 import java.awt.event.{FocusEvent, FocusAdapter}
-import com.pavelfatin.toyide.editor.{Terminal, Data}
+import com.pavelfatin.toyide.editor.{Pass, DataEvent, Terminal, Data}
 import swing.{BorderPanel, Component}
 
 private class StructureTab(data: Data, terminal: Terminal) extends BorderPanel {
@@ -32,10 +32,12 @@ private class StructureTab(data: Data, terminal: Terminal) extends BorderPanel {
   add(Component.wrap(tree), BorderPanel.Position.Center)
 
   data.onChange {
-    data.structure match {
-      case Some(node) => tree.setModel(new DefaultTreeModel(new TreeNodeAdapter(node)))
-      case None => // do nothing
-    }
+    case DataEvent(Pass.Parser, _) =>
+      val root = data.structure.getOrElse(
+        throw new IllegalStateException("No root node after parser pass"))
+
+      tree.setModel(new DefaultTreeModel(new TreeNodeAdapter(root)))
+    case _ =>
   }
 
   tree.addTreeSelectionListener(new TreeSelectionListener() {
@@ -59,7 +61,7 @@ private class StructureTab(data: Data, terminal: Terminal) extends BorderPanel {
   private def updateTreeHighlight() {
     val selection = Option(tree.getSelectionPath).map(_.getLastPathComponent.asInstanceOf[TreeNodeAdapter])
     selection.map(_.delegate).foreach { node =>
-      terminal.highlights = Seq(node.span)
+      terminal.highlights = Seq(node.span.interval)
     }
   }
 }

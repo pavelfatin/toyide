@@ -26,9 +26,9 @@ object VoidValue extends Inspection {
   val Message = "Value type cannot be void"
 
   def inspect(node: Node): Seq[Mark] = node match {
-    case p: Parameter if p.nodeType == Some(ToyType.VoidType) =>
+    case p: Parameter if p.nodeType.contains(ToyType.VoidType) =>
       p.typeId.map(Mark(_, Message)).toSeq
-    case v: VariableDeclaration if v.nodeType == Some(ToyType.VoidType) =>
+    case v: VariableDeclaration if v.nodeType.contains(ToyType.VoidType) =>
       v.typeId.map(Mark(_, Message)).toSeq
     case _ => Seq.empty
   }

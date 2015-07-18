@@ -22,11 +22,11 @@ import com.pavelfatin.toyide.node.Node
 
 object Optimizer {
   def optimize(root: Node, document: Document) {
-    optimizationsIn(root).reverse.foreach(p => document.replace(p._1.span, p._2))
+    optimizationsIn(root).reverse.foreach(p => document.replace(p._1.span.interval, p._2))
   }
 
   private def optimizationsIn(node: Node): Seq[(Node, String)] = node.optimized match {
     case Some(s) => if (node.span.text == s) Seq.empty else Seq(node -> s)
-    case None => node.children.flatMap(optimizationsIn _)
+    case None => node.children.flatMap(optimizationsIn)
   }
 }

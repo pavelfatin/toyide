@@ -23,7 +23,8 @@ import com.pavelfatin.toyide.editor.{Runner, Data}
 import com.pavelfatin.toyide.ide.{Console, Launcher}
 
 class InterpretAction(title0: String, mnemonic0: Char, shortcut: String, data: Data,
-                              interpreter: Runner, launcher: Launcher, console: Console) extends Action(title0) {
+                      interpreter: Runner, launcher: Launcher, console: Console) extends Action(title0) {
+
   mnemonic = mnemonic0
 
   accelerator = Some(KeyStroke.getKeyStroke(shortcut))
@@ -39,7 +40,7 @@ class InterpretAction(title0: String, mnemonic0: Char, shortcut: String, data: D
         launcher.launch(interpreter.run(root))
       }
     } else {
-      ErrorPrinter.print(data.errors.filter(_.fatal), console)
+      ErrorPrinter.print(data, console)
     }
   }
 }

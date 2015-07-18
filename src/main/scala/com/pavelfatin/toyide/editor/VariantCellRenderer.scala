@@ -17,7 +17,8 @@
 
 package com.pavelfatin.toyide.editor
 
-import javax.swing.{JList, DefaultListCellRenderer}
+import javax.swing.border.EmptyBorder
+import javax.swing.{JComponent, JList, DefaultListCellRenderer}
 import com.pavelfatin.toyide.lexer.Lexer
 import java.awt.Font
 
@@ -27,6 +28,8 @@ private class VariantCellRenderer(lexer: Lexer, coloring: Coloring) extends Defa
     val s = value.toString
 
     val result = super.getListCellRendererComponent(list, s, index, isSelected, cellHasFocus)
+
+    result.asInstanceOf[JComponent].setBorder(new EmptyBorder(2, 2, 2, 4))
 
     val tokens = lexer.analyze(s)
     if (tokens.hasNext) {

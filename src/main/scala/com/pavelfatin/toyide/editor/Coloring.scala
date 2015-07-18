@@ -17,14 +17,57 @@
 
 package com.pavelfatin.toyide.editor
 
+import java.awt.Color
+
+import com.pavelfatin.toyide.Observable
 import com.pavelfatin.toyide.lexer._
 
-trait Coloring {
+trait Coloring extends Function[String, Color] with Observable {
+  def fontFamily: String
+
+  def fontSize: Int
+
   def attributesFor(kind: TokenKind): Attributes
+}
 
-  def invert(attributes: Attributes): Attributes
+object Coloring {
+  val TextForeground = "TextForeground"
 
-  def highlight(attributes: Attributes): Attributes
+  val TextBackground = "TextBackground"
 
-  def dim(attributes: Attributes): Attributes
+  val CurrentLineBackground = "CurrentLineBackground"
+
+  val CaretForeground = "CaretForeground"
+
+  val SelectionForeground = "SelectionForeground"
+
+  val SelectionBackground = "SelectionBackground"
+
+  val HighlightBackground = "HighlightBackground"
+
+  val HoverForeground = "HoverForeground"
+
+  val PairedBraceBackground = "PairedBraceBackground"
+
+  val UnbalancedBraceBackground = "UnbalancedBraceBackground"
+
+  val RedForeground = "RedForeground"
+
+  val UnderlineForeground = "UnderlineForeground"
+
+  val DimForeground = "DimForeground"
+
+  val FillBackground = "FillBackground"
+
+  val BooleanLiteral = "BooleanLiteral"
+
+  val IntegerLiteral = "IntegerLiteral"
+
+  val CharLiteral = "CharLiteral"
+
+  val StringLiteral = "StringLiteral"
+
+  val Keyword = "Keyword"
+
+  val Comment = "Comment"
 }

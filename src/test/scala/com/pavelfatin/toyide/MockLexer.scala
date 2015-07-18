@@ -24,7 +24,7 @@ object MockLexer extends Lexer {
 
   def analyze(input: CharSequence) = {
     TokenPattern.findAllIn(input).matchData.map { m =>
-      (Token(MockTokenKind, Span(input, m.start, m.end)))
+      Token(MockTokenKind, Span(input, m.start, m.end))
     }
   }
 }

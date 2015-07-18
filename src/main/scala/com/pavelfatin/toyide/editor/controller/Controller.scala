@@ -18,9 +18,9 @@
 package com.pavelfatin.toyide.editor.controller
 
 import java.awt.event.{MouseEvent, KeyEvent}
-import com.pavelfatin.toyide.editor.EditorActions
+import com.pavelfatin.toyide.editor.{ActionProcessor, EditorActions}
 
-trait Controller {
+trait Controller extends ActionProcessor {
   def processKeyPressed(e: KeyEvent)
 
   def processKeyTyped(e: KeyEvent)

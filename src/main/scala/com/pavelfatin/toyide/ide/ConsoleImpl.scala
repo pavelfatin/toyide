@@ -17,12 +17,16 @@
 
 package com.pavelfatin.toyide.ide
 
-import javax.swing.text.{AttributeSet, StyleConstants, SimpleAttributeSet}
-import javax.swing.{JTextPane, SwingUtilities}
 import java.awt.{Color, Font}
+import javax.swing.text.{AttributeSet, SimpleAttributeSet, StyleConstants}
+import javax.swing.{JTextPane, SwingUtilities}
 
-private class ConsoleImpl extends JTextPane with Console {
-  setFont(new Font("Monospaced", Font.PLAIN, 14))
+import com.pavelfatin.toyide.editor.Coloring
+
+private class ConsoleImpl(coloring: Coloring) extends JTextPane with Console {
+  private val LinkColor = new Color(125, 121, 111)
+
+  setFont(new Font(coloring.fontFamily, Font.PLAIN, coloring.fontSize))
   setEditable(false)
 
   def print(s: String) {
@@ -31,13 +35,13 @@ private class ConsoleImpl extends JTextPane with Console {
 
   def print(s: String, color: Color) {
     val attributes = new SimpleAttributeSet()
-    StyleConstants.setForeground(attributes, color);
+    StyleConstants.setForeground(attributes, color)
     doPrint(s, attributes)
   }
 
   def printLink(s: String, line: Int) {
-    val attributes = new SimpleAttributeSet();
-    StyleConstants.setForeground(attributes, new Color(125, 121, 111));
+    val attributes = new SimpleAttributeSet()
+    StyleConstants.setForeground(attributes, LinkColor)
     doPrint(s, attributes)
   }
 

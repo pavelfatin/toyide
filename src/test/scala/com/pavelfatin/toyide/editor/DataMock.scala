@@ -18,11 +18,15 @@
 package com.pavelfatin.toyide.editor
 
 class DataMock extends Data {
+  def text = ""
+
   def tokens = Seq.empty
 
   def structure = None
 
   def errors = Seq.empty
+
+  def pass = Pass.Text
 
   def hasNextPass = false
 

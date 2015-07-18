@@ -23,17 +23,22 @@ import com.pavelfatin.toyide.editor.{Attributes, _}
 import com.pavelfatin.toyide.languages.lisp.LispTokens._
 import com.pavelfatin.toyide.lexer.TokenKind
 
-object LispColoring extends Coloring {
-  def attributesFor(kind: TokenKind) = Attributes(colorFor(kind), None, weightFor(kind), styleFor(kind), false)
+class LispColoring(colors: Map[String, Color]) extends AbstractColoring(colors) {
+  def attributesFor(kind: TokenKind) = {
+    val foreground = apply(colorId(kind))
+    val weight = weightFor(kind)
+    val style = styleFor(kind)
+    Attributes(foreground, None, weight, style, underlined = false)
+  }
 
-  private def colorFor(kind: TokenKind) = kind match {
-    case COMMENT => new Color(128, 128, 128)
-    case BOOLEAN_LITERAL => new Color(0, 0, 128)
-    case INTEGER_LITERAL => new Color(0, 0, 255)
-    case CHARACTER_LITERAL => new Color(0, 128, 0)
-    case STRING_LITERAL => new Color(0, 128, 0)
-    case PREDEFINED_SYMBOL => new Color(0, 0, 128)
-    case _ => Color.BLACK
+  private def colorId(kind: TokenKind) = kind match {
+    case COMMENT => Coloring.Comment
+    case BOOLEAN_LITERAL => Coloring.BooleanLiteral
+    case INTEGER_LITERAL => Coloring.IntegerLiteral
+    case CHARACTER_LITERAL => Coloring.CharLiteral
+    case STRING_LITERAL => Coloring.StringLiteral
+    case PREDEFINED_SYMBOL => Coloring.Keyword
+    case _ => Coloring.TextForeground
   }
 
   private def weightFor(token: TokenKind) = token match {
@@ -47,10 +52,4 @@ object LispColoring extends Coloring {
     case COMMENT => Style.Italic
     case _ => Style.Ordinary
   }
-
-  def invert(attributes: Attributes) = attributes.copy(color = Color.WHITE)
-
-  def highlight(attributes: Attributes) = attributes.copy(color = Color.RED)
-
-  def dim(attributes: Attributes) = attributes.copy(color = Color.GRAY)
 }

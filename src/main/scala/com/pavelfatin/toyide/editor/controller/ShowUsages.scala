@@ -24,6 +24,6 @@ private class ShowUsages(terminal: Terminal, data: Data) extends AnAction {
 
   def apply() {
     data.compute()
-    terminal.highlights = data.connectedLeafsFor(terminal.offset).map(_.span)
+    terminal.highlights = data.connectedLeafsFor(terminal.offset).map(_.span.interval)
   }
 }

@@ -21,6 +21,8 @@ sealed trait DocumentEvent {
   def undo(document: Document)
 
   def redo(document: Document)
+
+  def asReplacement: Replacement
 }
 
 case class Insertion(offset: Int, chars: CharSequence) extends DocumentEvent {
@@ -31,6 +33,8 @@ case class Insertion(offset: Int, chars: CharSequence) extends DocumentEvent {
   def redo(document: Document) {
     document.insert(offset, chars.toString)
   }
+
+  def asReplacement = Replacement(offset, offset, "", chars)
 }
 
 case class Removal(begin: Int, end: Int, before: CharSequence) extends DocumentEvent {
@@ -41,6 +45,8 @@ case class Removal(begin: Int, end: Int, before: CharSequence) extends DocumentE
   def redo(document: Document) {
     document.remove(begin, end)
   }
+
+  def asReplacement = Replacement(begin, end, before, "")
 }
 
 case class Replacement(begin: Int, end: Int, before: CharSequence, after: CharSequence) extends DocumentEvent {
@@ -51,4 +57,6 @@ case class Replacement(begin: Int, end: Int, before: CharSequence, after: CharSe
   def redo(document: Document) {
     document.replace(begin, end, after.toString)
   }
+
+  def asReplacement = this
 }

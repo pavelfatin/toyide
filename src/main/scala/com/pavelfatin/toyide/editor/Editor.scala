@@ -26,6 +26,8 @@ trait Editor extends Observable {
 
   def data: Data
 
+  def holder: ErrorHolder
+
   def terminal: Terminal
 
   def component: Component

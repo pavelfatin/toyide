@@ -15,8 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.pavelfatin.toyide.editor
+package com.pavelfatin.toyide.editor.painter
 
-trait Renderer {
-  def render(data: Data, terminal: Terminal, begin: Int, end: Int): Seq[Text]
+import java.awt.{Graphics, Rectangle}
+
+import com.pavelfatin.toyide.editor.Coloring
+
+private class BackgroundPainter(context: PainterContext) extends AbstractPainter(context) {
+  def id = "background"
+
+  def paint(g: Graphics, bounds: Rectangle) {
+    g.setColor(coloring(Coloring.TextBackground))
+    fill(g, bounds)
+  }
 }

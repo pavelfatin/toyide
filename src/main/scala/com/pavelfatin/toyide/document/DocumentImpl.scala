@@ -56,13 +56,7 @@ class DocumentImpl(s: String = "") extends Document {
   }
 
   private def updateAnchors(begin: Int, end: Int, end2: Int) {
-    anchors.foreach { anchor =>
-      if (begin < anchor.offset && end <= anchor.offset) {
-        anchor.offset += end2 - end
-      } else if (begin < anchor.offset && anchor.offset < end && end2 < anchor.offset) {
-        anchor.offset = end2
-      }
-    }
+    anchors.foreach(_.update(begin, end, end2))
   }
 
   private def check(offset: Int, parameter: String = "Offset") {
@@ -77,17 +71,26 @@ class DocumentImpl(s: String = "") extends Document {
       throw new IllegalArgumentException("Begin (%d) must be not greater than end (%d)".format(begin, end))
   }
 
-  def createAnchorAt(offset: Int): Anchor = {
-    val anchor = new AnchorImpl(offset)
+  def createAnchorAt(offset: Int, bias: Bias): Anchor = {
+    val anchor = new AnchorImpl(offset, bias)
     anchors ::= anchor
     anchor
   }
 
   protected def wraps = ls.wraps
 
-  private class AnchorImpl(var offset: Int = 0) extends Anchor {
+  private class AnchorImpl(var offset: Int, bias: Bias) extends Anchor {
     def dispose() {
       anchors = anchors.diff(Seq(this))
+    }
+
+    def update(begin: Int, end: Int, end2: Int) {
+      if (begin < offset && end <= offset) {
+        offset += end2 - end
+      } else if ((begin < offset && offset < end && end2 < offset) ||
+        (begin == end && begin == offset && bias == Bias.Right)) {
+        offset = end2
+      }
     }
   }
 }

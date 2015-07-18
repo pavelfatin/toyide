@@ -18,27 +18,26 @@
 package com.pavelfatin.toyide
 
 import collection.generic.CanBuildFrom
+import scala.reflect.{classTag, ClassTag}
 
 object Extensions {
+  import language.higherKinds
+
   private type CanBuildTo[Elem, CC[X]] = CanBuildFrom[Nothing, Elem, CC[Elem]]
 
-  class RichTraversable[CC[X] <: Traversable[X], A](value: CC[A]) {
-    def filterBy[T](implicit m: ClassManifest[T], cbf: CanBuildTo[T, CC]): CC[T] =
-      value.filter(classManifest[T].erasure.isInstance(_)).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
+  implicit class RichTraversable[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {
+    def filterBy[T](implicit m: ClassTag[T], cbf: CanBuildTo[T, CC]): CC[T] =
+      value.filter(classTag[T].runtimeClass.isInstance(_)).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
 
-    def findBy[T: ClassManifest]: Option[T] =
-      value.find(classManifest[T].erasure.isInstance(_)).map(_.asInstanceOf[T])
+    def findBy[T: ClassTag]: Option[T] =
+      value.find(classTag[T].runtimeClass.isInstance(_)).map(_.asInstanceOf[T])
 
     def collectAll[B](pf: PartialFunction[A, B])(implicit cbf: CanBuildTo[B, CC]): Option[CC[B]] = {
       if (value.forall(pf.isDefinedAt)) Some(value.collect(pf)(collection.breakOut)) else None
     }
   }
 
-  implicit def toRichTraversable[CC[X] <: Traversable[X], A](t: CC[A]): RichTraversable[CC, A] =
-    new RichTraversable[CC, A](t)
-
-
-  class RichCharSequence(chars: CharSequence) {
+  implicit class RichCharSequence(val chars: CharSequence) extends AnyVal {
     def count(p: Char => Boolean): Int = {
       var i = 0
       var n = 0
@@ -57,6 +56,4 @@ object Extensions {
       chars.subSequence(begin, chars.length)
     }
   }
-
-  implicit def toRichCharSequence(chars: CharSequence): RichCharSequence = new RichCharSequence(chars)
 }

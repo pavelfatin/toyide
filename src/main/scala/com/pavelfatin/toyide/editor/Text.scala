@@ -18,31 +18,22 @@
 package com.pavelfatin.toyide.editor
 
 import java.awt.Color
-import com.pavelfatin.toyide.document.Location
 import java.text.AttributedString
 import java.awt.font.TextAttribute
 
-case class Text(location: Location, s: String, attributes: Attributes) {
-  def decorated: AttributedString = attributes.decorate(s)
-}
-
 case class Attributes(color: Color, background: Option[Color], weight: Weight, style: Style, underlined: Boolean) {
-  def decorate(s: String): AttributedString = {
-    val result = new AttributedString(s)
-
-    result.addAttribute(TextAttribute.FAMILY, "Monospaced")
-    result.addAttribute(TextAttribute.SIZE, 14)
+  def decorate(result: AttributedString, begin: Int, end: Int) {
+    result.addAttribute(TextAttribute.FOREGROUND, color, begin, end)
+    background.foreach(it => result.addAttribute(TextAttribute.BACKGROUND, it, begin, end))
 
     if(underlined)
-      result.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON)
+      result.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON, begin, end)
 
     if(weight == Weight.Bold)
-      result.addAttribute(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD)
+      result.addAttribute(TextAttribute.WEIGHT, TextAttribute.WEIGHT_BOLD, begin, end)
 
     if(style == Style.Italic)
-      result.addAttribute(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE)
-
-    result
+      result.addAttribute(TextAttribute.POSTURE, TextAttribute.POSTURE_OBLIQUE, begin, end)
   }
 }
 

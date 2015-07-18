@@ -145,6 +145,22 @@ while (i < 10) {
 }
 """
 
+  val HighlightingDemo = """
+// Highlighting demo (try different color schemes)
+
+// Unused variable
+var name: string = "foo";
+
+// Expression type mismatch
+while (12345) {}
+
+// Expression can be simplified
+print(4 * 10 + 2);
+
+// Function cannot be resolved
+unknown(true);
+"""
+
   val Exception = """
 // Runtime exception and stack trace demo.
 
@@ -179,6 +195,7 @@ foo();
     Example("Project Euler 6", '6', Euler6),
     Example("Fibonacci Numbers", 'F', FibonacciNumbers),
     Example("Prime Numbers", 'P', PrimeNumbers),
+    Example("Highlighting Demo", 'H', HighlightingDemo),
     Example("Exception", 'E', Exception),
     Example("Stack Overflow", 'S', StackOverflow))
 }

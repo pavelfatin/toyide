@@ -42,7 +42,7 @@ object Applicability extends Inspection {
  }
 
   private def inspectPredefined(call: CallExpression): Seq[Mark] =
-    call.expressions.filter(_.nodeType == Some(VoidType)).map(Mark(_, Void))
+    call.expressions.filter(_.nodeType.contains(VoidType)).map(Mark(_, Void))
 
   private def inspect(call: CallExpression, function: FunctionDeclaration): Seq[Mark] = {
     val (bindings, excessive, missed) = call.bindings

@@ -17,8 +17,16 @@
 
 package com.pavelfatin.toyide
 
-case class Span(source: CharSequence, override val begin: Int, override val end: Int) extends Interval(begin, end) {
+case class Span(source: CharSequence, interval: Interval) extends IntervalLike {
+  def begin: Int = interval.begin
+
+  def end: Int = interval.end
+
   def text: String = source.subSequence(begin, end).toString
 
-  def leftEdge: Span = new Span(source, begin, begin)
+  def leftEdge: Span = Span(source, begin, begin)
+}
+
+object Span {
+  def apply(source: CharSequence, begin: Int, end: Int): Span = Span(source, Interval(begin, end))
 }

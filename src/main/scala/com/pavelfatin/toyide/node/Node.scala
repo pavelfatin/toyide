@@ -77,7 +77,7 @@ trait Node extends Evaluable with Translatable with Optimizable {
 
   def elements: Seq[Node] = {
     def elements(node: Node): Stream[Node] =
-      node #:: node.children.toStream.flatMap(elements(_))
+      node #:: node.children.toStream.flatMap(elements)
     elements(this)
   }
 
@@ -97,7 +97,7 @@ trait Node extends Evaluable with Translatable with Optimizable {
     if (offset < 0 || offset > span.end)
       throw new IllegalArgumentException("Offset (%d) must be in (%d; %d)".format(offset, span.begin, span.end))
     val candidates = elements.filter(_.span.touches(span.begin + offset)).collect {
-      case node @ NodeParent(identified: IdentifiedNode) if identified.id == Some(node) => identified
+      case node @ NodeParent(identified: IdentifiedNode) if identified.id.contains(node) => identified
     }
     candidates.headOption
   }

@@ -23,7 +23,7 @@ and other similar fun, but tricky things.
 
 Source code is 100% Scala. There are ~800 unit tests (run in < 3 seconds).
 
-Download binaries: [toyide-1.1-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.1.0/toyide-1.1-bin.zip) (10MB)
+Download binaries: [toyide-1.2-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.2.0/toyide-1.2-bin.zip) (7.5 MB)
 
 # Features
 
@@ -77,9 +77,10 @@ Minimalistic web server code as an example:
 
 ## Syntax highlighting
 
-Expressive syntax and error highlighting, code inspections:
+Expressive syntax and error highlighting, code inspections, customizable schemes:
 
 ![ToyIDE: Highlighting](doc/images/toyide-highlighting.png?raw=true)
+![ToyIDE: Coloring](doc/images/toyide-coloring.png?raw=true)
 
 ## Advanced editor
 

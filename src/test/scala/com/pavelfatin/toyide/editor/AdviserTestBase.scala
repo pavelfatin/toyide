@@ -38,7 +38,7 @@ abstract class AdviserTestBase(lexer: Lexer, parser: Parser, adviser: Adviser) {
     val label = Adviser.Anchor
     val s = code.replaceFirst("\\|", label)
     val root = parser.parse(lexer.analyze(s))
-    val anchor = root.elements.find(it => it.isLeaf && it.span.text.contains(label)).lastOption
+    val anchor = root.elements.find(it => it.isLeaf && it.span.text.contains(label))
     anchor match {
       case Some(it) =>
         val variants = adviser.variants(root, it).map(_.title)

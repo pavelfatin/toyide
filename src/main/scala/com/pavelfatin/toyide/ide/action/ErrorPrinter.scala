@@ -17,19 +17,18 @@
 
 package com.pavelfatin.toyide.ide.action
 
-import com.pavelfatin.toyide.editor.Error
-import com.pavelfatin.toyide.Extensions._
+import com.pavelfatin.toyide.editor.Data
 import com.pavelfatin.toyide.ide.Console
 import java.awt.Color
 
 private object ErrorPrinter {
   private val ErrorColor = new Color(127, 0, 0)
 
-  def print(errors: Seq[Error], console: Console) {
+  def print(data: Data, console: Console) {
     console.clear()
-    console.print("Errors found:\n", ErrorColor);
-    errors.filter(_.fatal).foreach { it =>
-      val line = it.span.source.take(it.span.begin).count(_ == '\n') + 1
+    console.print("Errors found:\n", ErrorColor)
+    data.errors.filter(_.fatal).foreach { it =>
+      val line = data.text.substring(0, it.interval.begin).count(_ == '\n') + 1
       console.print("\nError (", ErrorColor)
       console.printLink(line.toString, line)
       console.print("): %s".format(it.message), ErrorColor)

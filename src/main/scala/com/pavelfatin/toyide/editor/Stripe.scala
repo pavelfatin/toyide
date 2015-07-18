@@ -23,25 +23,38 @@ import java.awt._
 import event._
 import com.pavelfatin.toyide.{ObservableEvents, Interval}
 
-private class Stripe(document: Document, data: Data, grid: Grid)
-  extends JComponent with ObservableEvents[Int] {
-  private val MarkSize = Size(14, 4)
+private class Stripe(document: Document, data: Data, holder: ErrorHolder, grid: Grid, canvas: Canvas) extends JComponent with ObservableEvents[Int] {
+  private val MarkSize = new Dimension(14, 4)
   private val DefaultDelay = ToolTipManager.sharedInstance().getInitialDelay
   private val Led = new Rectangle(2, 2, MarkSize.width - 4, MarkSize.width - 4)
 
-  private var info = Info(Status.Normal, Seq.empty)
+  private var status: Status = Status.Normal
+  private var descriptors = Seq.empty[Descriptor]
 
   setMinimumSize(new Dimension(MarkSize.width, 0))
   setMaximumSize(new Dimension(MarkSize.width, Int.MaxValue))
   setPreferredSize(new Dimension(MarkSize.width, 0))
 
+  canvas.onChange {
+    case VisibilityChanged(true) => update()
+    case _ =>
+  }
+
+  holder.onChange { _ =>
+    if (canvas.visible) {
+      update()
+    }
+  }
+
   data.onChange {
-    update()
+    case DataEvent(Pass.Text, _) if canvas.visible => update()
+    case DataEvent(Pass.Inspections, _) if canvas.visible => updateStatus()
+    case _ =>
   }
 
   addComponentListener(new ComponentAdapter() {
     override def componentResized(e: ComponentEvent) {
-      update()
+      updateDescriptors()
     }
   })
 
@@ -62,21 +75,20 @@ private class Stripe(document: Document, data: Data, grid: Grid)
   addMouseMotionListener(new MouseMotionAdapter() {
     override def mouseMoved(e: MouseEvent) {
       if(Led.contains(e.getPoint)) {
-        val message = info.status match {
+        val message = status match {
           case Status.Waiting => "Analyzing..."
           case Status.Normal => "No errors"
-          case Status.Warnings => "%d warnings(s) found".format(info.warnings.size)
-          case Status.Errors => {
-            if (info.warnings.isEmpty)
-              "%d error(s) found".format(info.errors.size)
+          case Status.Warnings => "%d warnings(s) found".format(warnings.size)
+          case Status.Errors =>
+            if (warnings.isEmpty)
+              "%d error(s) found".format(errors.size)
             else
-              "%d error(s), %d warning(s) found".format(info.errors.size, info.warnings.size)
-          }
+              "%d error(s), %d warning(s) found".format(errors.size, warnings.size)
         }
         setToolTipText(message)
       } else {
-        val descriptors = info.descriptors.filter(_.rectangle.contains(e.getPoint))
-        val descriptor = descriptors.sortBy(!_.error.fatal).headOption
+        val pointDescriptors = descriptors.filter(_.rectangle.contains(e.getPoint))
+        val descriptor = pointDescriptors.sortBy(!_.error.fatal).headOption
         descriptor.foreach { it =>
           setToolTipText(it.error.message)
           setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
@@ -89,15 +101,37 @@ private class Stripe(document: Document, data: Data, grid: Grid)
     }
   })
 
+  private def errors = descriptors.filter(_.error.fatal)
+
+  private def warnings = descriptors.filter(!_.error.fatal)
+
   private def update() {
-    info = toInfo(data)
-    repaint()
+    updateStatus()
+    updateDescriptors()
+  }
+
+  private def updateStatus() {
+    val newStatus = statusIn(data)
+
+    if (status != newStatus) {
+      status = newStatus
+      repaint(Led)
+    }
+  }
+
+  private def updateDescriptors() {
+    val newDescriptors = descriptorsIn(holder)
+
+    if (descriptors != newDescriptors) {
+      descriptors = newDescriptors
+      repaint()
+    }
   }
 
   private def gridY(line: Int) = grid.toPoint(Location(line, 0)).y
 
   private def toY(line: Int) = {
-    if(gridY(document.linesCount) < getHeight) gridY(line) - 12 else
+    if(gridY(document.linesCount) < getHeight) gridY(line) + 3 else
       math.round(getHeight.toDouble * line / document.linesCount).toInt
   }
 
@@ -108,11 +142,12 @@ private class Stripe(document: Document, data: Data, grid: Grid)
   private def lineHeight = toY(1) - toY(0)
 
   override def paintComponent(g: Graphics) {
-    paint(g, info)
+    paint(g, status)
+    paint(g, descriptors)
   }
 
-  private def paint(g: Graphics, data: Info) {
-    val led = data.status match {
+  private def paint(g: Graphics, status: Status) {
+    val led = status match {
       case Status.Waiting => Color.LIGHT_GRAY
       case Status.Normal => Color.GREEN
       case Status.Warnings => Color.YELLOW
@@ -121,8 +156,10 @@ private class Stripe(document: Document, data: Data, grid: Grid)
 
     g.setColor(led)
     g.fill3DRect(Led.x, Led.y, Led.width, Led.height, false)
+  }
 
-    data.descriptors.sortBy(_.error.fatal).foreach { it =>
+  private def paint(g: Graphics, descriptors: Seq[Descriptor]) {
+    descriptors.sortBy(_.error.fatal).foreach { it =>
       val color = if (it.error.fatal) Color.RED else Color.YELLOW
       g.setColor(color)
       val r = it.rectangle
@@ -130,20 +167,22 @@ private class Stripe(document: Document, data: Data, grid: Grid)
     }
   }
 
-  private def toInfo(data: Data) = {
+  private def statusIn(data: Data): Status = {
     val errors = data.errors
 
-    val status = data.hasNextPass match {
+    data.hasNextPass match {
       case true => Status.Waiting
       case false =>
-        if(errors.isEmpty)
-          Status.Normal
-        else
-          if (errors.forall(!_.fatal)) Status.Warnings else Status.Errors
+        if(errors.isEmpty) Status.Normal
+        else if (data.hasFatalErrors) Status.Errors else Status.Warnings
     }
+  }
+
+  private def descriptorsIn(holder: ErrorHolder): Seq[Descriptor] = {
+    val errors = holder.errors
 
     val descriptors = errors.map { error =>
-      val lines = error.span.transformWith(document.lineNumberOf)
+      val lines = error.interval.transformWith(document.lineNumberOf)
       val heights = lines.transformWith(toY)
 
       val offset = math.round((lineHeight.toDouble - MarkSize.height) / 2.0D).toInt
@@ -156,13 +195,7 @@ private class Stripe(document: Document, data: Data, grid: Grid)
       Descriptor(error, lines.withEndShift(1), new Rectangle(2, y, MarkSize.width - 4, height))
     }
 
-    Info(status, descriptors)
-  }
-
-  private case class Info(status: Status, descriptors: Seq[Descriptor]) {
-    def errors = descriptors.filter(_.error.fatal)
-
-    def warnings = descriptors.filter(!_.error.fatal)
+    descriptors
   }
 
   private case class Descriptor(error: Error, lines: Interval, rectangle: Rectangle)

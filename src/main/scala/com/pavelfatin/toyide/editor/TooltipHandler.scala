@@ -17,7 +17,7 @@
 
 package com.pavelfatin.toyide.editor
 
-import java.awt.{Graphics, Color}
+import java.awt.{Dimension, Point, Graphics, Color}
 import java.awt.event.{MouseEvent, MouseAdapter, ActionEvent, ActionListener}
 import javax.swing._
 import javax.swing.border.{EmptyBorder, CompoundBorder, LineBorder}
@@ -25,7 +25,7 @@ import javax.swing.border.{EmptyBorder, CompoundBorder, LineBorder}
 private class TooltipHandler(component: JComponent, lookup: Point => Option[Error]) {
   private val Timeout = 500
 
-  private val TooltipShift = Size(5, 5)
+  private val TooltipShift = new Dimension(5, 5)
 
   private val TooltipBackground = new Color(0xFDFEE2)
 
@@ -40,7 +40,7 @@ private class TooltipHandler(component: JComponent, lookup: Point => Option[Erro
   private val tooltipTimer = new Timer(Timeout, new ActionListener() {
     def actionPerformed(e: ActionEvent) {
       for (point <- pointer; error <- lookup(point)) {
-        val p = createPopup(error, point + TooltipShift)
+        val p = createPopup(error, new Point(point.x + TooltipShift.width, point.y + TooltipShift.height))
         popup = Some(p)
         p.show()
       }

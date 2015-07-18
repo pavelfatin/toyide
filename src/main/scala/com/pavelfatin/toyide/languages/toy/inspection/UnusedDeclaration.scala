@@ -28,8 +28,8 @@ object UnusedDeclaration extends Inspection {
   def inspect(node: Node): Seq[Mark] = node match {
     case ScopeDeclarations(declarations) =>
       val unused = for (declaration <- declarations;
-                        elements = declaration.elements;
-                        if declaration.usages.filterNot(elements.contains(_)).isEmpty) yield declaration
+                        elements = declaration.elements
+                        if declaration.usages.forall(elements.contains)) yield declaration
       unused.collect {
         case node @ IdentifiedNode(id, identifier) =>
           val entity = node match {

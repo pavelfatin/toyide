@@ -32,7 +32,7 @@ trait Language {
 
   def parser: Parser
 
-  def coloring: Coloring
+  def colorings: Map[String, Coloring]
 
   def complements: Seq[(TokenKind, TokenKind)]
 

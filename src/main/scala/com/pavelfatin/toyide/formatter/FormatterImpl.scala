@@ -69,9 +69,9 @@ class FormatterImpl(format: Format) extends Formatter {
   }
 
   private def affectedTokens(root: Node, selection: Option[Interval]): (Seq[Token], Interval) = {
-    val interval = selection.getOrElse(root.span)
+    val interval = selection.getOrElse(root.span.interval)
 
-    val selected = root.elements.flatMap(_.token.toSeq).distinct.filter(_.span.intersectsWith(interval))
+    val selected = root.elements.flatMap(_.token.toSeq).distinct.filter(_.span.interval.intersectsWith(interval))
 
     val begin = selected.headOption.map(_.span.begin).getOrElse(root.span.begin)
     val end = selected.lastOption.map(_.span.end).getOrElse(root.span.end)

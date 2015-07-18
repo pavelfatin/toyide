@@ -17,6 +17,7 @@
 
 package com.pavelfatin.toyide.languages.lisp
 
+import com.pavelfatin.toyide.editor.ColorScheme
 import com.pavelfatin.toyide.{FileType, Language}
 
 object LispLanguage extends Language {
@@ -28,7 +29,9 @@ object LispLanguage extends Language {
 
   def parser = LispParser
 
-  def coloring = LispColoring
+  def colorings = Map(
+    "Light" -> new LispColoring(ColorScheme.LightColors),
+    "Dark" -> new LispColoring(ColorScheme.DarkColors))
 
   def complements = Seq(LispTokens.Parens, LispTokens.Brackets)
 

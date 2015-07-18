@@ -25,6 +25,7 @@ private class Format(document: Document, terminal: Terminal, data: Data, formatt
   def keys = List("ctrl alt pressed L")
 
   def apply() {
+    data.compute()
     data.structure.foreach { root =>
       val text = formatter.format(root, terminal.selection, tabSize)
       terminal.offset = terminal.offset.min(text.length)

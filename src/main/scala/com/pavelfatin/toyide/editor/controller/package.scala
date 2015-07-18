@@ -22,13 +22,7 @@ import com.pavelfatin.toyide.document.Document
 import com.pavelfatin.toyide.Interval
 
 package object controller {
-  private[controller] implicit def toNodeExt(node: Node) = new NodeExt(node)
-
-  private[controller] implicit def toDataExt(data: Data) = new DataExt(data)
-
-  private[controller] implicit def toTerminalExt(terminal: Terminal) = new TerminalExt(terminal)
-
-  private[controller] class DataExt(data: Data) {
+  private[controller] implicit class DataExt(val data: Data) extends AnyVal {
     def leafAt(offset: Int) = data.structure.flatMap { root =>
       root.offsetOf(offset).flatMap(root.leafAt)
     }
@@ -49,20 +43,20 @@ package object controller {
       }
       val refs = data.structure.toList.flatMap { root =>
         root.elements.collect {
-          case ref @ ReferenceNodeTarget(target) if Some(target) == targetNode => ref
+          case ref @ ReferenceNodeTarget(target) if targetNode.contains(target) => ref
         }
       }
       targetNode.flatMap(_.id).toList ::: refs.flatMap(_.source)
     }
   }
 
-  private[controller] class NodeExt(node: Node) {
+  private[controller] implicit class NodeExt(val node: Node) extends AnyVal {
     def offsetOf(i: Int): Option[Int] = {
       if (node.span.touches(i)) Some(i - node.span.begin) else None
     }
   }
 
-  private[controller] class TerminalExt(terminal: Terminal) {
+  private[controller] implicit class TerminalExt(val terminal: Terminal) extends AnyVal {
     def currentLineIntervalIn(document: Document) = {
       val line = document.lineNumberOf(terminal.offset)
       val begin = document.startOffsetOf(line)

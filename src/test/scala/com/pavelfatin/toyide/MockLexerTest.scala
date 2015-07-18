@@ -75,6 +75,6 @@ class MockLexerTest {
   }
 
   def assertTokens(input: String, expectation: String) {
-    assertEquals(expectation, MockLexer.analyze(input).map(_.toCompleteString).mkString(", "));
+    assertEquals(expectation, MockLexer.analyze(input).map(_.toCompleteString).mkString(", "))
   }
 }

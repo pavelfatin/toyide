@@ -17,17 +17,22 @@
 
 package com.pavelfatin.toyide.ide
 
+import javax.swing.Timer
+
 import com.pavelfatin.toyide.Language
 
 import swing._
-import event.WindowClosed
+import scala.swing.event.{WindowOpened, WindowClosed}
 import com.pavelfatin.toyide.document.Location
-import java.awt.event.{FocusAdapter, FocusEvent}
-import com.pavelfatin.toyide.editor.{EditorFactory, HistoryImpl, Editor}
+import java.awt.event.{ActionEvent, ActionListener, FocusAdapter, FocusEvent}
+import com.pavelfatin.toyide.editor.{Pass, EditorFactory, HistoryImpl, Editor}
 
 class MainFrame(language: Language, text: String) extends Frame {
   reactions += {
+    case WindowOpened(_) =>
+      timer.start()
     case WindowClosed(_) =>
+      timer.stop()
       primaryEditor.dispose()
       secondaryEditor.dispose()
   }
@@ -39,25 +44,47 @@ class MainFrame(language: Language, text: String) extends Frame {
 
   private val history = new HistoryImpl()
 
-  private val primaryEditor = EditorFactory.createEditorFor(language, history)
+  private val coloring = new DynamicColoring(language.colorings)
 
-  private lazy val secondaryEditor =
-    EditorFactory.createEditorFor(primaryEditor.document, primaryEditor.data, language, history)
+  private val primaryEditor = EditorFactory.createEditorFor(language, history, coloring)
+
+  private lazy val secondaryEditor = EditorFactory.createEditorFor(primaryEditor.document,
+    primaryEditor.data, primaryEditor.holder, language, history, coloring)
+
+  private val data = primaryEditor.data
+
+  private val timer = new Timer(10, new ActionListener() {
+    def actionPerformed(e: ActionEvent) {
+      if (data.hasNextPass) {
+        data.nextPass()
+      }
+    }
+  })
+
+  timer.setRepeats(false)
+
+  data.onChange { _ =>
+    if (data.hasNextPass) {
+      val delay = if (data.pass == Pass.Text) 300 else 100
+      timer.setInitialDelay(delay)
+      timer.restart()
+    }
+  }
 
   private val status = new StatusBar()
 
   private val tab = new EditorTabImpl(language.fileType, history, primaryEditor, secondaryEditor)
 
-  private val console = new ConsoleImpl()
+  private val console = new ConsoleImpl(coloring)
 
   private val launcher = new LauncherImpl()
 
   private val menu = new MainMenu(tab, this, primaryEditor.data, new NodeInterpreter(console),
-    new NodeInvoker(console), launcher, console, language.examples)
+    new NodeInvoker(console), launcher, console, coloring, language.examples)
 
   private def updateTitle() {
     val name = tab.file.map(_.getName.replaceAll("\\.%s".format(language.fileType.extension), ""))
-    title = "%s - ToyIDE".format(name.getOrElse("Untitled"))
+    title = "%s - ToyIDE 1.2".format(name.getOrElse("Untitled"))
   }
 
   private def updateMessageFor(editor: Editor) {
@@ -96,7 +123,8 @@ class MainFrame(language: Language, text: String) extends Frame {
 
   contents = new BorderPanel() {
     val split = new SplitPane(Orientation.Horizontal, tab, new ScrollPane(Component.wrap(console)))
-    split.resizeWeight = 0.69D
+    split.dividerLocation = 507
+    split.resizeWeight = 1.0D
     split.border = null
     add(split, BorderPanel.Position.Center)
     add(status, BorderPanel.Position.South)

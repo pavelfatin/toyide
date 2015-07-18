@@ -22,24 +22,29 @@ import com.pavelfatin.toyide.lexer.TokenKind
 import ToyTokens._
 import com.pavelfatin.toyide.editor._
 
-object ToyColoring extends Coloring {
-  def attributesFor(kind: TokenKind) = Attributes(colorFor(kind), None, weightFor(kind), styleFor(kind), false)
+class ToyColoring(colors: Map[String, Color]) extends AbstractColoring(colors) {
+  def attributesFor(kind: TokenKind) = {
+    val foreground = apply(colorId(kind))
+    val weight = weightFor(kind)
+    val style = styleFor(kind)
+    Attributes(foreground, None, weight, style, underlined = false)
+  }
 
-  private def colorFor(kind: TokenKind) = kind match {
-    case COMMENT => new Color(128, 128, 128)
-    case BOOLEAN_LITERAL => new Color(0, 0, 128)
-    case NUMBER_LITERAL => new Color(0, 0, 255)
-    case STRING_LITERAL => new Color(0, 128, 0)
-    case kind if(Keywords.contains(kind)) => new Color(0, 0, 128)
-    case kind if(Types.contains(kind)) => new Color(0, 0, 128)
-    case _ => Color.BLACK
+  private def colorId(kind: TokenKind) = kind match {
+    case COMMENT => Coloring.Comment
+    case BOOLEAN_LITERAL => Coloring.BooleanLiteral
+    case NUMBER_LITERAL => Coloring.IntegerLiteral
+    case STRING_LITERAL => Coloring.StringLiteral
+    case it if Keywords.contains(it) => Coloring.Keyword
+    case it if Types.contains(it) => Coloring.Keyword
+    case _ => Coloring.TextForeground
   }
 
   private def weightFor(token: TokenKind) = token match {
     case BOOLEAN_LITERAL => Weight.Bold
     case STRING_LITERAL => Weight.Bold
-    case kind if(Keywords.contains(kind)) => Weight.Bold
-    case kind if(Types.contains(kind)) => Weight.Bold
+    case it if Keywords.contains(it) => Weight.Bold
+    case it if Types.contains(it) => Weight.Bold
     case _ => Weight.Normal
   }
 
@@ -47,10 +52,4 @@ object ToyColoring extends Coloring {
     case COMMENT => Style.Italic
     case _ => Style.Ordinary
   }
-
-  def invert(attributes: Attributes) = attributes.copy(color = Color.WHITE)
-
-  def highlight(attributes: Attributes): Attributes = attributes.copy(color = Color.RED)
-
-  def dim(attributes: Attributes): Attributes = attributes.copy(color = Color.GRAY)
 }

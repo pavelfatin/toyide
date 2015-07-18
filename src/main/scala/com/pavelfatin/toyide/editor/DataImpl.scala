@@ -17,84 +17,93 @@
 
 package com.pavelfatin.toyide.editor
 
-import com.pavelfatin.toyide.lexer._
 import com.pavelfatin.toyide.document.Document
+import com.pavelfatin.toyide.inspection.{Inspection, Mark}
+import com.pavelfatin.toyide.lexer._
 import com.pavelfatin.toyide.node.Node
-import com.pavelfatin.toyide.inspection.{Mark, Inspection}
 import com.pavelfatin.toyide.parser.Parser
 
 private class DataImpl(document: Document, lexer: Lexer, parser: Parser, inspections: Seq[Inspection]) extends Data {
-  private var state: State = new AnalyzerState()
+  def text = document.text
 
-  private trait State {
-    def tokens = Seq[Token]()
+  var tokens = Seq.empty[Token]
 
-    def tree: Option[Node] = None
+  var structure: Option[Node] = None
 
-    def marks = Seq[Mark]()
+  var errors = Seq.empty[Error]
 
-    lazy val errors: Seq[Error] = {
-      val lexers = state.tokens.collect {
-        case Token(_, span, Some(message)) => Error(span, message)
-      }
-      val parsers = state.tree.toSeq.flatMap(_.elements).map(node => (node, node.problem)).collect {
-        case (node, Some(message)) => Error(node.span, message)
-      }
-      val inspected = state.marks.collect {
-        case Mark(node, message, decoration, warning) => Error(node.span, message, decoration, !warning)
-      }
-      lexers ++ parsers ++ inspected
-    }
+  var hasFatalErrors = errors.exists(_.fatal)
 
-    def hasNext = true
+  var pass: Pass = Pass.Text
 
-    def next: State = throw new IllegalStateException("Next state is unavailable")
+  document.onChange { _ =>
+    run(Pass.Text)
   }
 
-  private class AnalyzerState extends State {
-    override lazy val tokens = lexer.analyze(document.characters).toSeq
-
-    override def next = new ParserPass(tokens)
-  }
-
-  private class ParserPass(override val tokens: Seq[Token]) extends State {
-    private lazy val root = parser.parse(tokens.toIterator)
-
-    override lazy val tree = Some(root)
-
-    override lazy val marks = root.elements.flatMap { node =>
-      inspections.flatMap(_.inspect(node))
-    }
-
-    override def hasNext = false
-  }
-
-  document.onChange { event =>
-    reset()
-  }
-
-  def reset() {
-    state = new AnalyzerState()
-    notifyObservers()
-  }
-
-  def hasNextPass = state.hasNext
+  def hasNextPass = pass.next.isDefined
 
   def nextPass() {
-    state = state.next
-    notifyObservers()
+    val next = pass.next.getOrElse(
+      throw new IllegalStateException("Next pass is unavailable"))
+
+    run(next)
   }
 
   def compute() {
-    while (hasNextPass)
+    while (hasNextPass) {
       nextPass()
+    }
   }
 
-  def tokens = state.tokens
+  private def run(p: Pass) {
+    pass = p
 
-  def structure = state.tree
+    val passErrors = p match {
+      case Pass.Text => runTextPass()
+      case Pass.Lexer => runLexerPass()
+      case Pass.Parser => runParserPass()
+      case Pass.Inspections => runInspectionPass()
+    }
 
-  def errors = state.errors
+    errors = errors ++ passErrors
+    hasFatalErrors = hasFatalErrors || passErrors.exists(_.fatal)
 
-  def hasFatalErrors = errors.exists(_.fatal)
+    notifyObservers(DataEvent(pass, passErrors))
+  }
+
+  private def runTextPass(): Seq[Error] = {
+    tokens = Seq.empty
+    structure = None
+    errors = Seq.empty
+    hasFatalErrors = false
+
+    Seq.empty
+  }
+
+  private def runLexerPass(): Seq[Error] = {
+    tokens = lexer.analyze(document.characters).toSeq
+
+    tokens.collect {
+      case Token(_, span, Some(message)) => Error(span.interval, message)
+    }
+  }
+
+  private def runParserPass(): Seq[Error] = {
+    val root = parser.parse(tokens.toIterator)
+
+    structure = Some(root)
+
+    root.elements.map(node => (node, node.problem)).collect {
+      case (node, Some(message)) => Error(node.span.interval, message)
+    }
+  }
+
+  private def runInspectionPass(): Seq[Error] = {
+    val root = structure.getOrElse(
+      throw new IllegalStateException("Running inspections prior to parser"))
+
+    root.elements.flatMap(node => inspections.flatMap(_.inspect(node))).collect {
+      case Mark(node, message, decoration, warning) => Error(node.span.interval, message, decoration, !warning)
+    }
+  }
 }

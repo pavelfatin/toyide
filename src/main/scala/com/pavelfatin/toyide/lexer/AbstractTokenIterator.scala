@@ -64,7 +64,7 @@ abstract class AbstractTokenIterator(input: CharSequence) extends Iterator[Token
 
   def isAhead(char: Char): Boolean = isAhead(_ == char)
 
-  def isAhead(predicate: Char => Boolean): Boolean = ahead(1).filter(predicate).isDefined
+  def isAhead(predicate: Char => Boolean): Boolean = ahead(1).exists(predicate)
 
   def isAhead(string: String): Boolean = {
     val end = index + string.length

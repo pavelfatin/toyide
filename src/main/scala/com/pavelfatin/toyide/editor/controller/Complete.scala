@@ -33,7 +33,7 @@ private class Complete(document: Document, terminal: Terminal, data: Data,
     val structure = data.structure
     document.remove(terminal.offset, terminal.offset + label.length)
     for (root <- structure;
-         anchor <- root.elements.find(it => it.isLeaf && it.span.text.contains(label)).lastOption) {
+         anchor <- root.elements.find(it => it.isLeaf && it.span.text.contains(label))) {
       val variants = adviser.variants(root, anchor)
       val query = document.text(anchor.span.begin, terminal.offset)
       val filtered = variants.filter(_.content.startsWith(query))

@@ -17,7 +17,6 @@
 
 package com.pavelfatin.toyide.document
 
-import java.lang.IndexOutOfBoundsException
 import LinedString._
 
 private class LinedString private (val lines: List[CharSequence]) extends CharSequence {
@@ -38,7 +37,7 @@ private class LinedString private (val lines: List[CharSequence]) extends CharSe
 
   lazy val wraps: Seq[Int] = wrapsIn(lines, 0)
 
-  override lazy val toString = lines.foldLeft("")(_ + _)
+  override lazy val toString = lines.foldLeft(new StringBuilder())(_ append _).toString()
 
   private def charAt(index: Int, list: List[CharSequence]): Char = list match {
     case Nil => throw new IndexOutOfBoundsException()

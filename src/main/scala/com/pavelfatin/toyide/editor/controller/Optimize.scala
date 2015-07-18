@@ -17,7 +17,7 @@
 
 package com.pavelfatin.toyide.editor.controller
 
-import com.pavelfatin.toyide.document.Document
+import com.pavelfatin.toyide.document.{Bias, Document}
 import com.pavelfatin.toyide.editor.{AnAction, Data, Terminal}
 import com.pavelfatin.toyide.optimizer.Optimizer
 
@@ -30,7 +30,7 @@ private class Optimize(document: Document, terminal: Terminal, data: Data) exten
       terminal.highlights = Seq.empty
       terminal.selection = None
 
-      val anchor = document.createAnchorAt(terminal.offset)
+      val anchor = document.createAnchorAt(terminal.offset, Bias.Left)
       terminal.offset = 0
 
       Optimizer.optimize(root, document)

@@ -17,47 +17,13 @@
 
 package com.pavelfatin.toyide.languages.toy.compiler
 
-import com.pavelfatin.toyide.languages.toy.ToyType
 import com.pavelfatin.toyide.Extensions._
-import com.pavelfatin.toyide.languages.toy.node._
-import com.pavelfatin.toyide.node._
 import com.pavelfatin.toyide.compiler._
+import com.pavelfatin.toyide.node._
 
 trait ToyTranslatable extends Translatable { self: Node =>
   protected def interrupt(message: String, values: Any*): Nothing =
     throw new TranslationException(message.format(values: _*))
-
-  protected implicit def toRichToyType(nodeType: NodeType) = new {
-    def descriptor: String = nodeType match {
-      case ToyType.StringType => "Ljava/lang/String;"
-      case ToyType.IntegerType => "I"
-      case ToyType.BooleanType => "Z"
-      case ToyType.VoidType => "V"
-    }
-
-    def prefix: Char = nodeType match {
-      case ToyType.StringType => 'a'
-      case ToyType.IntegerType |  ToyType.BooleanType => 'i'
-      case ToyType.VoidType => interrupt("No prefix for void type")
-    }
-  }
-
-  protected implicit def toRichVariableDeclaration(variable: VariableDeclaration) = new {
-    def ordinal: Int = variable.parents
-      .filterBy[Scope]
-      .init
-      .flatMap(_.values)
-      .count(_.span.begin < variable.span.begin)
-
-    def global: Boolean = variable.parent match {
-      case Some(_: Program) => true
-      case _ => false
-    }
-  }
-
-  protected implicit def toRichParameter(parameter: Parameter) = new {
-    def ordinal: Int = parameter.previousSiblings.filterBy[Parameter].size
-  }
 
   protected def withLine(s: String): String = {
     val line = self.span.source.take(self.span.begin).count(_ == '\n')

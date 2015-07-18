@@ -26,7 +26,7 @@ object MissingReturn extends Inspection {
   val Message = "Missing return statement"
 
   def inspect(node: Node): Seq[Mark] = node match {
-    case function @ FunctionBlock(block) if function.nodeType != Some(ToyType.VoidType) && block.exit.isEmpty =>
+    case function @ FunctionBlock(block) if !function.nodeType.contains(ToyType.VoidType) && block.exit.isEmpty =>
       Seq(Mark(block.children.last, Message))
     case _ => Seq.empty
   }

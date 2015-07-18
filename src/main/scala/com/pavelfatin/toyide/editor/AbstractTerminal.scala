@@ -20,7 +20,7 @@ package com.pavelfatin.toyide.editor
 import com.pavelfatin.toyide.{ObservableEvents, Interval}
 
 trait AbstractTerminal extends Terminal with ObservableEvents[TerminalEvent] {
-  private var _offset = 0;
+  private var _offset = 0
 
   private var _selection: Option[Interval] = None
 
@@ -31,32 +31,40 @@ trait AbstractTerminal extends Terminal with ObservableEvents[TerminalEvent] {
   def offset = _offset
 
   def offset_=(i: Int) {
-    val previous = _offset
+    if (_offset != i) {
+      val previous = _offset
     _offset = i
-    notifyObservers(CaretMovement(previous, i))
+      notifyObservers(CaretMovement(previous, i))
+    }
   }
 
   def selection = _selection
 
   def selection_=(s: Option[Interval]) {
-    val previous = _selection
-    _selection = s
-    notifyObservers(SelectionChange(previous, s))
+    if (_selection != s) {
+      val previous = _selection
+      _selection = s
+      notifyObservers(SelectionChange(previous, s))
+    }
   }
 
   def hover = _hover
 
   def hover_=(i: Option[Int]) {
-    val previous = _hover
-    _hover = i
-    notifyObservers(HoverChange(previous, i))
+    if (_hover != i) {
+      val previous = _hover
+      _hover = i
+      notifyObservers(HoverChange(previous, i))
+    }
   }
 
   def highlights = _highlights
 
   def highlights_=(hs: Seq[Interval]) {
-    val previous = _highlights
-    _highlights = hs
-    notifyObservers(HighlightsChange(previous, hs))
+    if (_highlights != hs) {
+      val previous = _highlights
+      _highlights = hs
+      notifyObservers(HighlightsChange(previous, hs))
+    }
   }
 }

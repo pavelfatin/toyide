@@ -17,9 +17,10 @@
 
 package com.pavelfatin.toyide.languages.toy
 
-import inspection._
-import parser.ProgramParser
+import com.pavelfatin.toyide.editor.ColorScheme
 import com.pavelfatin.toyide.languages.toy.ToyTokens._
+import com.pavelfatin.toyide.languages.toy.inspection._
+import com.pavelfatin.toyide.languages.toy.parser.ProgramParser
 import com.pavelfatin.toyide.{FileType, Language}
 
 object ToyLanguage extends Language {
@@ -31,7 +32,9 @@ object ToyLanguage extends Language {
 
   def parser = ProgramParser
 
-  def coloring = ToyColoring
+  def colorings = Map(
+    "Light" -> new ToyColoring(ColorScheme.LightColors),
+    "Dark" -> new ToyColoring(ColorScheme.DarkColors))
 
   def complements = Seq((LBRACE, RBRACE), (LPAREN, RPAREN))
 

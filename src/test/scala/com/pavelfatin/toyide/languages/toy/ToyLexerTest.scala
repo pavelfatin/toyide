@@ -172,6 +172,6 @@ class ToyLexerTest {
   }
 
   def assertTokens(input: String, expectation: String) {
-    assertEquals(expectation, ToyLexer.analyze(input).map(_.toCompleteString).mkString(", "));
+    assertEquals(expectation, ToyLexer.analyze(input).map(_.toCompleteString).mkString(", "))
   }
 }
