@@ -150,19 +150,14 @@ private class EditorImpl(val document: Document, val data: Data, val holder: Err
 
   painters.foreach(painter => painter.onChange(handlePaintingRequest(painter, _)))
 
-  private var immediatePainting = false
-
   private val handlePaintingRequest = (painter: Painter, rectangle: Rectangle) => {
     if (canvas.visible) {
       val visibleRectangle = rectangle.intersection(canvas.visibleRectangle)
 
       if (!visibleRectangle.isEmpty) {
         if (painter.immediate) {
-          immediatePainting = true
-          Pane.paintImmediately(visibleRectangle)
-          immediatePainting = false
+          Pane.paintImmediately(painters.filter(_.immediate))
         } else {
-          immediatePainting = false
           Pane.repaint(visibleRectangle)
         }
       }
@@ -301,11 +296,23 @@ private class EditorImpl(val document: Document, val data: Data, val holder: Err
     }
 
     override def paintComponent(g: Graphics) {
+      paintOn(g, painters.filterNot(_.immediate))
+    }
+
+    def paintImmediately(painters: Seq[Painter]) {
+      Option(getGraphics).foreach { graphics =>
+        paintOn(graphics, painters)
+        Toolkit.getDefaultToolkit.sync()
+      }
+    }
+
+    private def paintOn(g: Graphics, painters: Seq[Painter]) {
       val g2d = g.asInstanceOf[Graphics2D]
 
       renderingHints.foreach(it => g2d.addRenderingHints(it.asInstanceOf[java.util.Map[_, _]]))
 
-      painters.filter(_.immediate == immediatePainting).foreach(_.paint(g, g.getClipBounds))
+      val clipBounds = g.getClipBounds
+      painters.foreach(_.paint(g, clipBounds))
     }
   }
 }

@@ -54,6 +54,11 @@ private abstract class AbstractPainter(context: PainterContext) extends Painter 
     new Rectangle(0, point.y, canvas.size.width, grid.cellSize.height)
   }
 
+  protected def caretRectangleAt(offset: Int): Rectangle = {
+    val point = toPoint(offset)
+    new Rectangle(point.x, point.y, 2, grid.cellSize.height)
+  }
+
   protected def rectanglesOf(interval: Interval): Seq[Rectangle] = {
     val width = canvas.size.width
     val height = grid.cellSize.height

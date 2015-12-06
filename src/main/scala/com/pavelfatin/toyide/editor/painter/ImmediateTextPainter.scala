@@ -19,33 +19,42 @@ package com.pavelfatin.toyide.editor.painter
 
 import java.awt.font.TextAttribute
 import java.awt.{Color, Graphics, Rectangle}
+import java.lang.Math._
 import java.text.AttributedString
 
-import com.pavelfatin.toyide.document.{DocumentEvent, Insertion, Removal}
+import com.pavelfatin.toyide.document.Replacement
 import com.pavelfatin.toyide.editor.{Adviser, Area, Coloring}
 import com.pavelfatin.toyide.lexer.Lexer
 
 private class ImmediateTextPainter(context: PainterContext, lexer: Lexer) extends AbstractPainter(context) {
+  private val Pairs = Set("()", "{}", "\"\"")
+
   def id = "immediate text"
 
   override def immediate = true
 
-  private var lastEvent: Option[DocumentEvent] = None
+  private var lastEvent: Option[Replacement] = None
 
-  document.onChange {
-    case event @ Insertion(offset, chars) if isRelevantEvent(offset, chars) =>
-      lastEvent = Some(event)
-      notifyObservers(rectangleFrom(offset, tailLengthFrom(offset)))
+  document.onChange { event =>
+    if (canvas.visible) {
+      val replacement = event.asReplacement
 
-    case event @ Removal(begin, _, chars) if isRelevantEvent(begin, chars) =>
-      lastEvent = Some(event)
-      notifyObservers(rectangleFrom(begin, tailLengthFrom(begin) + chars.length))
+      if (isRelevant(replacement)) {
+        lastEvent = Some(replacement)
 
-    case _ =>
+        val lengthBefore = replacement.before.length
+        val lengthAfter = replacement.after.length
+        val endAfter = replacement.begin + lengthAfter
+        val rectangle = rectangleFrom(replacement.begin, max(lengthBefore, lengthAfter) + tailLengthFrom(endAfter) + 1)
+        notifyObservers(rectangle)
+      }
+    }
   }
 
-  private def isRelevantEvent(offset: Int, chars: CharSequence) =
-    canvas.visible && !contains(chars, '\n') && chars != Adviser.Anchor
+  private def isRelevant(replacement: Replacement): Boolean =
+    !contains(replacement.before, '\n') && !contains(replacement.after, '\n') &&
+      !(replacement.after.length == 2 && Pairs.contains(replacement.after.toString)) &&
+        replacement.after != Adviser.Anchor
 
   private def tailLengthFrom(offset: Int): Int = {
     val location = document.toLocation(offset)
@@ -59,61 +68,60 @@ private class ImmediateTextPainter(context: PainterContext, lexer: Lexer) extend
   }
 
   override def paint(g: Graphics, bounds: Rectangle) {
-    lastEvent match {
-      case Some(Insertion(offset, chars)) => paintInsertion(g, offset, chars)
-      case Some(Removal(begin, _, chars)) => paintRemoval(g, begin, chars)
-      case _ =>
+    lastEvent.foreach {
+      case Replacement(begin, _, before, after) =>
+        paintReplacement(g, begin, before, after)
     }
     lastEvent = None
   }
 
-  private def paintInsertion(g: Graphics, offset: Int, chars: CharSequence) {
-    val tailLength = tailLengthFrom(offset + chars.length)
+  private def paintReplacement(g: Graphics, begin: Int, before: CharSequence, after: CharSequence) {
+    val endAfter = begin + after.length
+    val delta = after.length - before.length
 
-    val remainder = rectangleFrom(offset, tailLength)
+    if (delta != 0) {
+      val tailLength = tailLengthFrom(endAfter)
 
-    if (!remainder.isEmpty) {
-      val delta = grid.cellSize.width * chars.length
-      g.copyArea(remainder.x, remainder.y, remainder.width, remainder.height, delta, 0)
+      if (tailLength > 0) {
+        val shift = grid.cellSize.width * delta
+        val tailAfter = rectangleFrom(endAfter, tailLength)
+
+        g.copyArea(tailAfter.x - shift, tailAfter.y, tailAfter.width, tailAfter.height, shift, 0)
+      }
+
+      if (delta < 0) {
+        val exposedBackground = rectangleFrom(endAfter + tailLength, -delta + 1)
+
+        g.setColor(backgroundColorAt(begin))
+        fill(g, exposedBackground)
+      }
     }
 
-    val location = document.toLocation(offset)
+    if (after.length > 0) {
+      val location = document.toLocation(begin)
 
-    val prefix = document.text(document.startOffsetOf(location.line), offset + chars.length)
+      val prefix = document.text(document.startOffsetOf(location.line), endAfter)
 
-    lexer.analyze(prefix).toSeq.lastOption.foreach { token =>
-      val area = Area(location.line, location.indent, chars.length, 1)
-      val rectangle = grid.toRectangle(area)
+      lexer.analyze(prefix).toSeq.lastOption.foreach { token =>
+        val area = Area(location.line, location.indent, after.length, 1)
+        val rectangle = grid.toRectangle(area)
 
-      g.setColor(backgroundColorAt(offset))
-      fill(g, rectangle)
+        g.setColor(backgroundColorAt(begin))
+        fill(g, rectangle)
 
-      val string = new AttributedString(chars.toString)
-      string.addAttribute(TextAttribute.FAMILY, coloring.fontFamily)
-      string.addAttribute(TextAttribute.SIZE, coloring.fontSize)
+        val string = new AttributedString(after.toString)
+        string.addAttribute(TextAttribute.FAMILY, coloring.fontFamily)
+        string.addAttribute(TextAttribute.SIZE, coloring.fontSize)
 
-      val attributes = coloring.attributesFor(token.kind)
-      attributes.decorate(string, 0, chars.length)
+        val attributes = coloring.attributesFor(token.kind)
+        attributes.decorate(string, 0, after.length)
 
-      g.drawString(string.getIterator, rectangle.x, rectangle.y + 15)
-    }
-  }
-
-  private def paintRemoval(g: Graphics, begin: Int, chars: CharSequence) {
-    val tailLength = tailLengthFrom(begin)
-
-    val remainder = rectangleFrom(begin, tailLength)
-
-    val delta = grid.cellSize.width * chars.length
-
-    if (!remainder.isEmpty) {
-      g.copyArea(remainder.x + delta, remainder.y, remainder.width, remainder.height, - delta, 0)
+        g.drawString(string.getIterator, rectangle.x, rectangle.y + 15)
+      }
     }
 
-    val rectangle = new Rectangle(remainder.x + remainder.width, remainder.y, delta, remainder.height)
-
-    g.setColor(backgroundColorAt(begin))
-    fill(g, rectangle)
+    g.setColor(coloring(Coloring.CaretForeground))
+    fill(g, caretRectangleAt(terminal.offset + max(0, delta)))
   }
 
   private def backgroundColorAt(offset: Int): Color = {
