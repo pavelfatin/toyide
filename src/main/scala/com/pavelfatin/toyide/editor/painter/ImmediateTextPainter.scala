@@ -36,7 +36,7 @@ private class ImmediateTextPainter(context: PainterContext, lexer: Lexer) extend
   private var lastEvent: Option[Replacement] = None
 
   document.onChange { event =>
-    if (canvas.visible) {
+    if (canvas.visible && canvas.hasFocus) {
       val replacement = event.asReplacement
 
       if (isRelevant(replacement)) {

@@ -28,6 +28,8 @@ trait Canvas extends ObservableEvents[CanvasEvent] {
 
   def visibleRectangle: Rectangle
 
+  def hasFocus: Boolean
+
   def caretVisible: Boolean
 }
 
@@ -36,5 +38,7 @@ sealed trait CanvasEvent
 case class VisibilityChanged(b: Boolean) extends CanvasEvent
 
 case class VisibleRectangleChanged(r: Rectangle) extends CanvasEvent
+
+case class FocusChanged(b: Boolean) extends CanvasEvent
 
 case class CaretVisibilityChanged(b: Boolean) extends CanvasEvent

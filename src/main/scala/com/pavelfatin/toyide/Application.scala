@@ -35,6 +35,9 @@ object Application extends SwingApplication {
   override def startup(args: Array[String]) {
     UIManager.setLookAndFeel(LookAndFeel)
 
+    // Workaround for https://bugs.openjdk.java.net/browse/JDK-8134828
+    UIManager.put("ScrollBar.minimumThumbSize", new Dimension(32, 32))
+
     selectLanguage().foreach(openMainFrame(_))
   }
 

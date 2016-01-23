@@ -47,11 +47,23 @@ private class CanvasImpl(component: JComponent, scrollPane: JScrollPane) extends
     }
   })
 
+  component.addFocusListener(new FocusListener {
+    def focusGained(e: FocusEvent) {
+      notifyObservers(FocusChanged(true))
+    }
+
+    def focusLost(e: FocusEvent) {
+      notifyObservers(FocusChanged(false))
+    }
+  })
+
   def size: Dimension = component.getSize
 
   def visible: Boolean = component.isShowing
 
   def visibleRectangle: Rectangle = component.getVisibleRect
+
+  def hasFocus: Boolean = component.hasFocus
 
   def caretVisible = _caretVisible
 

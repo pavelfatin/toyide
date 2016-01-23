@@ -44,6 +44,7 @@ private class MatchPainter(context: PainterContext, matcher: BraceMatcher,
   
   canvas.onChange {
     case VisibleRectangleChanged(_) if !completeData && anchoredMatches.nonEmpty => update(complete = true)
+    case FocusChanged(hasFocus) => update(complete = true)
     case _ =>
   }
 
@@ -52,7 +53,7 @@ private class MatchPainter(context: PainterContext, matcher: BraceMatcher,
 
     val previousMatches = anchoredMatches
 
-    anchoredMatches = if (terminal.selection.isDefined) Seq.empty else {
+    anchoredMatches = if (!canvas.hasFocus || terminal.selection.isDefined) Seq.empty else {
       val tokens = if (complete) data.tokens else {
         val visibleInterval = intervalOf(grid.toArea(canvas.visibleRectangle))
         data.tokens.filter(_.span.intersectsWith(visibleInterval))
