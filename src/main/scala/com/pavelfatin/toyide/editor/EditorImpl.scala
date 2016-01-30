@@ -20,7 +20,7 @@ package com.pavelfatin.toyide.editor
 import java.awt._
 import java.awt.event._
 import javax.swing.border.EmptyBorder
-import javax.swing.{Renderer => _, _}
+import javax.swing.{Renderer => _, Painter => _, _}
 
 import com.pavelfatin.toyide.Interval
 import com.pavelfatin.toyide.document.Document
@@ -31,7 +31,7 @@ import com.pavelfatin.toyide.lexer.Lexer
 
 private class EditorImpl(val document: Document, val data: Data, val holder: ErrorHolder,
                          lexer: Lexer, coloring: Coloring, matcher: BraceMatcher,
-                         format: Format, adviser: Adviser, listRenderer: ListCellRenderer,
+                         format: Format, adviser: Adviser, listRenderer: ListCellRenderer[AnyRef],
                          comment: String, history: History) extends Editor {
 
   private val grid = new Grid(new Dimension(8, 20), Pane.getInsets)

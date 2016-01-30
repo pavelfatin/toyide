@@ -23,7 +23,7 @@ import javax.swing._
 import java.awt.event._
 
 private object ChooserFactory {
-  def createPopup[T <: AnyRef](parent: JComponent, point: Point, font: Font, variants: Seq[T], renderer: ListCellRenderer)
+  def createPopup[T <: AnyRef](parent: JComponent, point: Point, font: Font, variants: Seq[T], renderer: ListCellRenderer[AnyRef])
                               (callback: Option[T] => Unit) = {
     val list = createList(variants, font)
 

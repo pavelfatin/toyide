@@ -17,25 +17,28 @@
 
 package com.pavelfatin.toyide.editor
 
-import javax.swing.border.EmptyBorder
-import javax.swing.{JComponent, JList, DefaultListCellRenderer}
-import com.pavelfatin.toyide.lexer.Lexer
 import java.awt.Font
+import javax.swing.border.EmptyBorder
+import javax.swing.{DefaultListCellRenderer, JComponent, JList, ListCellRenderer}
 
-private class VariantCellRenderer(lexer: Lexer, coloring: Coloring) extends DefaultListCellRenderer {
-  override def getListCellRendererComponent(list: JList, value: AnyRef, index: Int,
+import com.pavelfatin.toyide.lexer.Lexer
+
+private class VariantCellRenderer(lexer: Lexer, coloring: Coloring) extends ListCellRenderer[AnyRef] {
+  private val delegate = new DefaultListCellRenderer().asInstanceOf[ListCellRenderer[AnyRef]]
+
+  override def getListCellRendererComponent(list: JList[_ <: AnyRef], value: AnyRef, index: Int,
                                             isSelected: Boolean, cellHasFocus: Boolean) = {
     val s = value.toString
 
-    val result = super.getListCellRendererComponent(list, s, index, isSelected, cellHasFocus)
+    val result = delegate.getListCellRendererComponent(list, s, index, isSelected, cellHasFocus)
 
     result.asInstanceOf[JComponent].setBorder(new EmptyBorder(2, 2, 2, 4))
 
     val tokens = lexer.analyze(s)
     if (tokens.hasNext) {
       if (coloring.attributesFor(tokens.next().kind).weight == Weight.Bold) {
-        val prototype = getFont
-        setFont(new Font(prototype.getFamily, Font.BOLD, prototype.getSize))
+        val prototype = result.getFont
+        result.setFont(new Font(prototype.getFamily, Font.BOLD, prototype.getSize))
       }
     }
 
