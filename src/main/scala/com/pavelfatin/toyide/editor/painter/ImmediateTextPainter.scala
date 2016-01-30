@@ -27,7 +27,7 @@ import com.pavelfatin.toyide.editor._
 import com.pavelfatin.toyide.lexer.Lexer
 
 private class ImmediateTextPainter(context: PainterContext, lexer: Lexer, processor: ActionProcessor) extends AbstractPainter(context) {
-  private val Pairs = Set("()", "{}", "\"\"")
+  private val Pairs = Set("()", "[]", "{}", "\"\"")
 
   def id = "immediate text"
 

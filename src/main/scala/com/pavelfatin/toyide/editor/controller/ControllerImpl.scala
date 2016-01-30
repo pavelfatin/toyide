@@ -31,6 +31,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   //TODO extract to some extension (maybe using brace matcher)
   private val pairs = List(
     ('(', ')'),
+    ('[', ']'),
     ('{', '}'),
     ('\"', '\"')
   )
@@ -208,12 +209,12 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
     val nextChar = document.charOptionAt(terminal.offset)
     val prevChar = document.charOptionAt(terminal.offset - 1)
 
-    val complement = nextChar.filter(_ == c).flatMap(it => pairs.find(_._2 == it).map(_._1))
+    val complementChar = nextChar.filter(_ == c).flatMap(it => pairs.find(_._2 == it).map(_._1))
 
-    if (prevChar.exists(complement.contains)) {
+    if (prevChar.exists(complementChar.contains)) {
       terminal.offset += 1
     } else {
-      val complement = pairs.find(_._1 == c).map(_._2).filter(!nextChar.contains(_))
+      val complement = if (nextChar.exists(it => it.isLetterOrDigit || it == c)) None else pairs.find(_._1 == c).map(_._2)
       val s = c.toString + complement.mkString
       if (s == BlockClosing.toString) {
         val indent = terminal.offset - document.startOffsetOf(document.lineNumberOf(terminal.offset))

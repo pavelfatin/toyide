@@ -99,6 +99,22 @@ class ControllerImplTest {
   @Test
   def charComplement() {
     assertEffectIs("|", "(|)")(_.processCharInsertion('('))
+    assertEffectIs("|", "[|]")(_.processCharInsertion('['))
+    assertEffectIs("|", "{|}")(_.processCharInsertion('{'))
+    assertEffectIs("|", "\"|\"")(_.processCharInsertion('"'))
+  }
+
+  @Test
+  def charComplementSuppression() {
+    assertEffectIs("|a", "(|a")(_.processCharInsertion('('))
+    assertEffectIs("|1", "(|1")(_.processCharInsertion('('))
+    assertEffectIs("|(", "(|(")(_.processCharInsertion('('))
+  }
+
+  @Test
+  def charComplementNonSuppression() {
+    assertEffectIs("|)", "[|])")(_.processCharInsertion('['))
+    assertEffectIs("|)", "(|))")(_.processCharInsertion('('))
   }
 
   @Test
