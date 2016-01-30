@@ -20,7 +20,7 @@ package com.pavelfatin.toyide.editor.painter
 import java.awt.{Graphics, Rectangle}
 
 import com.pavelfatin.toyide.Interval
-import com.pavelfatin.toyide.document.Bias
+import com.pavelfatin.toyide.document.AnchoredInterval
 import com.pavelfatin.toyide.editor._
 import com.pavelfatin.toyide.lexer.Token
 
@@ -101,16 +101,5 @@ private class MatchPainter(context: PainterContext, matcher: BraceMatcher,
     grid.toRectangle(area)
   }
 
-  private class AnchoredMatch(origin: Interval, val braceType: BraceType) {
-    private val beginAnchor = document.createAnchorAt(origin.begin, Bias.Right)
-
-    private val endAnchor = document.createAnchorAt(origin.end, Bias.Left)
-
-    def interval = Interval(beginAnchor.offset, beginAnchor.offset.max(endAnchor.offset))
-
-    def dispose() {
-      beginAnchor.dispose()
-      endAnchor.dispose()
-    }
-  }
+  private class AnchoredMatch(origin: Interval, val braceType: BraceType) extends AnchoredInterval(document, origin)
 }

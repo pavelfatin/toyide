@@ -17,8 +17,7 @@
 
 package com.pavelfatin.toyide.editor
 
-import com.pavelfatin.toyide.Interval
-import com.pavelfatin.toyide.document.{Bias, Document}
+import com.pavelfatin.toyide.document.{AnchoredInterval, Document}
 
 private class ErrorHolderImpl(document: Document, data: Data) extends ErrorHolder {
   private var passToAnchoredErrors = Map.empty[Pass, Seq[AnchoredError]]
@@ -40,19 +39,7 @@ private class ErrorHolderImpl(document: Document, data: Data) extends ErrorHolde
   def errors: Seq[Error] = passToAnchoredErrors.flatMap(_._2.map(_.toError)).toVector
 
 
-  private class AnchoredError(error: Error) {
-    private val beginAnchor = document.createAnchorAt(error.interval.begin, Bias.Right)
-
-    private val endAnchor = document.createAnchorAt(error.interval.end, Bias.Left)
-
-    def toError = {
-      val interval = Interval(beginAnchor.offset, beginAnchor.offset.max(endAnchor.offset))
-      Error(interval, error.message, error.decoration, error.fatal)
-    }
-
-    def dispose() {
-      beginAnchor.dispose()
-      endAnchor.dispose()
-    }
+  private class AnchoredError(error: Error) extends AnchoredInterval(document, error.interval) {
+    def toError = Error(interval, error.message, error.decoration, error.fatal)
   }
 }
