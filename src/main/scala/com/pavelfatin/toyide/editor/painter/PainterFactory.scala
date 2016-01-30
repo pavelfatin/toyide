@@ -17,7 +17,7 @@ object PainterFactory {
     val hoverPainter = new HoverPainter(context)
 
     val painters = Seq(
-      new ImmediateTextPainter(context, lexer),
+      new ImmediateTextPainter(context, lexer, processor),
       new BackgroundPainter(context),
       new CurrentLinePainter(context),
       errorPainter,

@@ -23,10 +23,10 @@ import java.lang.Math._
 import java.text.AttributedString
 
 import com.pavelfatin.toyide.document.Replacement
-import com.pavelfatin.toyide.editor.{Adviser, Area, Coloring}
+import com.pavelfatin.toyide.editor._
 import com.pavelfatin.toyide.lexer.Lexer
 
-private class ImmediateTextPainter(context: PainterContext, lexer: Lexer) extends AbstractPainter(context) {
+private class ImmediateTextPainter(context: PainterContext, lexer: Lexer, processor: ActionProcessor) extends AbstractPainter(context) {
   private val Pairs = Set("()", "{}", "\"\"")
 
   def id = "immediate text"
@@ -35,8 +35,17 @@ private class ImmediateTextPainter(context: PainterContext, lexer: Lexer) extend
 
   private var lastEvent: Option[Replacement] = None
 
+  private var immediateAction: Boolean = false
+
+  processor.onChange {
+    case ActionStarted(immediate) =>
+      immediateAction = immediate
+    case ActionFinished =>
+      immediateAction = false
+  }
+
   document.onChange { event =>
-    if (canvas.visible && canvas.hasFocus) {
+    if (immediateAction) {
       val replacement = event.asReplacement
 
       if (isRelevant(replacement)) {

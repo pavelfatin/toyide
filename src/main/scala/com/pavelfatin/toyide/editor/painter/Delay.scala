@@ -26,7 +26,7 @@ private class Delay[T](delegate: ObservableEvents[T], processor: ActionProcessor
   private var events = Seq.empty[T]
 
   processor.onChange {
-    case ActionStarted => 
+    case ActionStarted(_) =>
       delay = true
     case ActionFinished =>
       events.foreach(notifyObservers)

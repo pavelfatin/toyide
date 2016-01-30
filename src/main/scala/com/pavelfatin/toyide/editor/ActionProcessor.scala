@@ -23,6 +23,6 @@ class ActionProcessor extends ObservableEvents[ActionProcessorEvent]
 
 sealed trait ActionProcessorEvent
 
-case object ActionStarted extends ActionProcessorEvent
+case class ActionStarted(immediate: Boolean) extends ActionProcessorEvent
 
 case object ActionFinished extends ActionProcessorEvent

@@ -47,7 +47,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   def processKeyPressed(e: KeyEvent) {
     if(isModifierKey(e.getKeyCode)) return
 
-    notifyObservers(ActionStarted)
+    notifyObservers(ActionStarted(isImmediate(e)))
 
     history.recording(document, terminal) {
       doProcessKeyPressed(e)
@@ -59,7 +59,7 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
   }
 
   def processKeyTyped(e: KeyEvent) {
-    notifyObservers(ActionStarted)
+    notifyObservers(ActionStarted(immediate = true))
 
     history.recording(document, terminal) {
       doProcessKeyTyped(e)
@@ -77,6 +77,11 @@ class ControllerImpl(document: Document, data: Data, terminal: Terminal, grid: G
       action()
       e.consume()
     }
+  }
+
+  private def isImmediate(e: KeyEvent): Boolean = e.getKeyCode match {
+    case KeyEvent.VK_BACK_SPACE | KeyEvent.VK_DELETE => true
+    case _ => false
   }
 
   def doProcessKeyPressed(e: KeyEvent) {
