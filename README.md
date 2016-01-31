@@ -23,7 +23,7 @@ and other similar fun, but tricky things.
 
 Source code is 100% Scala. There are ~800 unit tests (run in < 3 seconds).
 
-Download binaries: [toyide-1.2.2-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.2.2/toyide-1.2.2-bin.zip) (7.5 MB)
+Download binaries: [toyide-1.2.3-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.2.3/toyide-1.2.3-bin.zip) (7.5 MB)
 
 # Features
 
