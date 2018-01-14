@@ -19,11 +19,13 @@ who want to know more about [lexers](https://en.wikipedia.org/wiki/Lexical_analy
 [Java bytecode](https://en.wikipedia.org/wiki/Java_bytecode "Java bytecode - Wikipedia")
 and other similar fun, but tricky things.
 
+*Update: [Jason Zaugg](https://www.linkedin.com/in/jason-zaugg-0428b521) endorsed the project as ["open-source Scala application with simplicity and taste"](http://grokbase.com/p/gg/scala-user/141y2yf9yc/open-source-scala-applications-with-simplicity-and-taste)*
+
 [![ToyIDE: Main window](doc/images/toyide-main-window.jpg?raw=true)](doc/images/toyide-main-window-large.png?raw=true)
 
 Source code is 100% Scala. There are ~800 unit tests (run in < 3 seconds).
 
-Download binaries: [toyide-1.2.3-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.2.3/toyide-1.2.3-bin.zip) (7.5 MB)
+Download binaries: [toyide-1.2.4-bin.zip](https://github.com/pavelfatin/toyide/releases/download/v1.2.4/toyide-1.2.4-bin.zip) (7.5 MB)
 
 # Features
 
